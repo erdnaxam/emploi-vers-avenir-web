@@ -34,14 +34,8 @@ const Documents = () => {
 
   return (
     <PageLayout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-center">Mes documents</h1>
-          <p className="text-muted-foreground text-center">
-            Retrouvez ici tous vos documents créés durant votre parcours.
-          </p>
-        </div>
-        
+      <div className="container mx-auto px-4 py-6">
+        <h1 className="text-2xl font-bold mb-4 text-center">Mes documents</h1>
         <DocumentsList documents={documents} />
       </div>
     </PageLayout>

@@ -10,17 +10,17 @@ export function Navbar() {
   const location = useLocation();
 
   const navLinks = [
-    { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5 mr-2" /> },
-    { name: 'Mon parcours', path: '/dashboard', icon: <BookOpen className="h-5 w-5 mr-2" /> },
-    { name: 'Mes documents', path: '/documents', icon: <File className="h-5 w-5 mr-2" /> },
-    { name: 'Aide', path: '/aide', icon: <LifeBuoy className="h-5 w-5 mr-2" /> },
+    { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5 mr-1" /> },
+    { name: 'Mon parcours', path: '/dashboard', icon: <BookOpen className="h-5 w-5 mr-1" /> },
+    { name: 'Documents', path: '/documents', icon: <File className="h-5 w-5 mr-1" /> },
+    { name: 'Aide', path: '/aide', icon: <LifeBuoy className="h-5 w-5 mr-1" /> },
   ];
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-border shadow-sm">
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-2">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center space-x-2">
             <span className="font-bold text-xl text-primary">Emploi<span className="text-accent">Avenir</span></span>
@@ -42,7 +42,7 @@ export function Navbar() {
                 asChild
                 className={cn(
                   "text-foreground hover:text-primary transition-colors duration-200",
-                  location.pathname === link.path && "text-primary font-medium"
+                  location.pathname === link.path && "bg-primary/10 text-primary font-medium"
                 )}
               >
                 <Link to={link.path} className="flex items-center">
@@ -51,10 +51,10 @@ export function Navbar() {
                 </Link>
               </Button>
             ))}
-            <Button variant="outline" asChild>
+            <Button variant="ghost" asChild>
               <Link to="/profile" className="flex items-center">
-                <User className="h-5 w-5 mr-2" />
-                <span>Mon compte</span>
+                <User className="h-5 w-5 mr-1" />
+                <span>Compte</span>
               </Link>
             </Button>
           </div>
@@ -62,7 +62,7 @@ export function Navbar() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden mt-4 pb-4 space-y-2 animate-slide-in">
+          <div className="md:hidden mt-2 pb-2 space-y-1 animate-slide-in">
             {navLinks.map((link) => (
               <Button
                 key={link.path}
@@ -70,7 +70,7 @@ export function Navbar() {
                 asChild
                 className={cn(
                   "w-full justify-start text-foreground hover:text-primary transition-colors duration-200",
-                  location.pathname === link.path && "bg-secondary"
+                  location.pathname === link.path && "bg-primary/10"
                 )}
               >
                 <Link to={link.path} onClick={() => setIsOpen(false)} className="flex items-center">
@@ -79,10 +79,10 @@ export function Navbar() {
                 </Link>
               </Button>
             ))}
-            <Button variant="outline" asChild className="w-full justify-start">
+            <Button variant="ghost" asChild className="w-full justify-start">
               <Link to="/profile" onClick={() => setIsOpen(false)} className="flex items-center">
-                <User className="h-5 w-5 mr-2" />
-                <span>Mon compte</span>
+                <User className="h-5 w-5 mr-1" />
+                <span>Compte</span>
               </Link>
             </Button>
           </div>

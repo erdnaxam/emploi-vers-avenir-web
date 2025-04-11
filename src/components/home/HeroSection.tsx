@@ -2,22 +2,21 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 
 const HeroSection = () => {
   return (
-    <div className="bg-white py-20 md:py-32">
-      <div className="container mx-auto px-4 max-w-3xl text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
-          Mon parcours vers l'emploi
+    <div className="bg-white py-16">
+      <div className="container mx-auto px-4 max-w-2xl text-center">
+        <h1 className="text-3xl font-bold mb-4">
+          Votre parcours vers l'emploi
         </h1>
-        <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-          Un accompagnement étape par étape pour faciliter l'accès à l'emploi.
+        <p className="text-lg mb-8">
+          Un accompagnement simple et personnalisé pour trouver un emploi.
         </p>
         
-        <Button size="lg" className="px-8 py-6 text-lg rounded-md h-auto" asChild>
+        <Button size="lg" className="px-6 py-5 text-lg rounded-md h-auto w-full md:w-auto" asChild>
           <Link to="/login">
-            Commencer mon parcours
+            Commencer
           </Link>
         </Button>
       </div>

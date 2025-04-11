@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MoveRight, Play, FileText, Volume2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -62,56 +62,51 @@ const StepContent: React.FC<StepContentProps> = ({
   };
 
   return (
-    <div className="container px-4 py-8 max-w-4xl mx-auto">
-      <div className="mb-8 text-center">
+    <div className="container px-4 py-6 max-w-2xl mx-auto">
+      <div className="mb-6 text-center">
         <Badge variant="outline" className="text-primary border-primary px-3 py-1 mb-2">
           Étape {id}
         </Badge>
-        <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
+        <h1 className="text-xl md:text-2xl font-bold">{title}</h1>
         <p className="text-muted-foreground mt-2">{description}</p>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader className="bg-primary/5">
-          <CardTitle className="text-xl">Objectif de cette étape</CardTitle>
-        </CardHeader>
+      <Card className="mb-6">
         <CardContent className="pt-6">
+          <h2 className="font-bold mb-2">Objectif</h2>
           <p>{objective}</p>
         </CardContent>
       </Card>
 
-      <h2 className="text-xl font-bold mb-4 text-center">Ressources disponibles</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <h2 className="text-lg font-bold mb-3">Ressources</h2>
+      <div className="grid grid-cols-1 gap-3 mb-6">
         {resources.map((resource) => (
-          <Card key={resource.id} className="transition-all duration-300 hover:shadow-md">
-            <CardHeader className="pb-3">
-              <Badge variant="outline" className="w-fit mb-2">
-                {resource.type.charAt(0).toUpperCase() + resource.type.slice(1)}
-              </Badge>
-              <CardTitle className="text-lg">{resource.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{resource.description}</p>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full" asChild>
-                <a href={resource.url} target="_blank" rel="noopener noreferrer" className="group">
-                  <span className="flex items-center">
-                    {getResourceIcon(resource.type)}
-                    <span className="ml-2">Consulter</span>
-                  </span>
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
+          <Button 
+            key={resource.id} 
+            variant="outline" 
+            className="justify-start text-left h-auto p-4 flex items-center gap-3" 
+            asChild
+          >
+            <a href={resource.url} target="_blank" rel="noopener noreferrer">
+              <div className="rounded-full bg-primary/10 p-2 mr-1">
+                {getResourceIcon(resource.type)}
+              </div>
+              <div>
+                <div className="font-medium">{resource.title}</div>
+                <div className="text-sm text-muted-foreground">{resource.description}</div>
+              </div>
+            </a>
+          </Button>
         ))}
       </div>
 
       <div className="flex justify-center">
         <Button 
           onClick={completeStep} 
-          className="py-6 h-auto text-lg rounded-md"
+          className="py-5 h-auto text-lg rounded-md w-full"
         >
           <span>Valider et continuer</span>
-          <MoveRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+          <MoveRight className="ml-2" />
         </Button>
       </div>
     </div>

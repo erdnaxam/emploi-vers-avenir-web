@@ -68,43 +68,45 @@ const Dashboard = () => {
     },
   ];
 
-  // Message de félicitation
-  const congratsMessage = "Bravo ! Votre CV est prêt !";
-
   return (
     <PageLayout>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4 text-center">Espace utilisateur</h1>
+      <div className="container mx-auto px-4 py-6">
+        <h1 className="text-2xl font-bold mb-4 text-center">Mon parcours</h1>
         
-        <div className="mb-12 bg-white rounded-lg shadow-sm pb-4">
+        {steps.find(step => step.status === "completed") && (
+          <div className="bg-success/10 text-success p-3 mb-6 text-center rounded-md">
+            Bravo ! Vous avancez bien dans votre parcours.
+          </div>
+        )}
+        
+        <div className="mb-8 bg-white rounded-lg shadow-sm">
           <StepProgress steps={steps} currentStepId={2} />
         </div>
 
-        {steps.find(step => step.status === "completed") && (
-          <div className="bg-success/10 text-success p-4 mb-6 text-center rounded-md">
-            {congratsMessage}
-          </div>
-        )}
-
-        <div className="flex flex-col gap-4 max-w-2xl mx-auto">
+        <div className="flex flex-col gap-3 max-w-xl mx-auto">
           {steps.map((step) => (
-            <Button
+            <button
               key={step.id}
-              variant={step.status === "current" ? "default" : "outline"}
+              className={cn(
+                "flex items-center p-4 text-left h-auto rounded-md border-2 w-full",
+                step.status === "current" ? "bg-primary text-white" : "bg-white",
+                step.status === "locked" ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+              )}
+              onClick={() => step.status !== "locked" && navigate(step.path)}
               disabled={step.status === "locked"}
-              className="justify-start text-left h-auto py-6 rounded-md border-2"
-              onClick={() => navigate(step.path)}
             >
+              <div className="rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm font-bold bg-white text-primary">
+                {step.id}
+              </div>
               {step.title}
-            </Button>
+            </button>
           ))}
         </div>
 
-        <div className="flex justify-between max-w-2xl mx-auto mt-12">
+        <div className="flex justify-center gap-4 mt-8">
           <Button 
             variant="outline" 
-            size="lg"
-            className="text-lg"
+            className="text-lg py-4 h-auto w-[45%]"
             onClick={() => navigate('/documents')}
           >
             Mes documents
@@ -112,8 +114,7 @@ const Dashboard = () => {
           
           <Button 
             variant="outline" 
-            size="lg"
-            className="text-lg"
+            className="text-lg py-4 h-auto w-[45%]"
             onClick={() => navigate('/aide')}
           >
             Besoin d'aide
