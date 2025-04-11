@@ -2,9 +2,7 @@
 import React from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import StepProgress, { Step } from '@/components/steps/StepProgress';
-import DashboardSummary from '@/components/dashboard/DashboardSummary';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -21,21 +19,21 @@ const Dashboard = () => {
     },
     {
       id: 2,
-      title: "Chercher un emploi",
+      title: "Me préparer à chercher un emploi",
       description: "Techniques et ressources pour une recherche efficace",
       path: "/etape/2",
       status: "current"
     },
     {
       id: 3,
-      title: "Postuler aux offres",
+      title: "Trouver et postuler à des offres",
       description: "Répondre aux offres avec des candidatures adaptées",
       path: "/etape/3",
       status: "locked"
     },
     {
       id: 4,
-      title: "Préparer l'entretien",
+      title: "Me préparer à un entretien",
       description: "Se préparer pour réussir ses entretiens d'embauche",
       path: "/etape/4",
       status: "locked"
@@ -63,55 +61,64 @@ const Dashboard = () => {
     },
     {
       id: 8,
-      title: "Après l'embauche",
+      title: "Être accompagné après l'embauche",
       description: "Réussir votre intégration et votre période d'essai",
       path: "/etape/8",
       status: "locked"
     },
   ];
 
-  // Données simulées pour la page de tableau de bord
-  const userData = {
-    username: "Jean Dupont",
-    completedSteps: 1,
-    totalSteps: 8,
-    lastActivity: "Hier, 15:30",
-    achievements: [
-      {
-        id: "a1",
-        title: "Premier pas vers l'emploi",
-        description: "Vous avez créé votre CV avec succès !",
-        date: "12/04/2025"
-      }
-    ]
-  };
-
-  const goToCurrentStep = () => {
-    const currentStep = steps.find(step => step.status === 'current');
-    if (currentStep) {
-      navigate(currentStep.path);
-    }
-  };
+  // Message de félicitation
+  const congratsMessage = "Bravo ! Votre CV est prêt !";
 
   return (
     <PageLayout>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Tableau de bord</h1>
-            <p className="text-muted-foreground">Bienvenue, {userData.username}. Continuez votre parcours.</p>
-          </div>
-          <Button className="mt-4 md:mt-0" onClick={goToCurrentStep}>
-            <span>Continuer mon parcours</span>
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-
-        <div className="mb-12 bg-white rounded-lg shadow-sm overflow-x-auto">
+        <h1 className="text-3xl font-bold mb-4 text-center">Espace utilisateur</h1>
+        
+        <div className="mb-12 bg-white rounded-lg shadow-sm pb-4">
           <StepProgress steps={steps} currentStepId={2} />
         </div>
 
-        <DashboardSummary {...userData} />
+        {steps.find(step => step.status === "completed") && (
+          <div className="bg-success/10 text-success p-4 mb-6 text-center rounded-md">
+            {congratsMessage}
+          </div>
+        )}
+
+        <div className="flex flex-col gap-4 max-w-2xl mx-auto">
+          {steps.map((step) => (
+            <Button
+              key={step.id}
+              variant={step.status === "current" ? "default" : "outline"}
+              disabled={step.status === "locked"}
+              className="justify-start text-left h-auto py-6 rounded-md border-2"
+              onClick={() => navigate(step.path)}
+            >
+              {step.title}
+            </Button>
+          ))}
+        </div>
+
+        <div className="flex justify-between max-w-2xl mx-auto mt-12">
+          <Button 
+            variant="outline" 
+            size="lg"
+            className="text-lg"
+            onClick={() => navigate('/documents')}
+          >
+            Mes documents
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="lg"
+            className="text-lg"
+            onClick={() => navigate('/aide')}
+          >
+            Besoin d'aide
+          </Button>
+        </div>
       </div>
     </PageLayout>
   );

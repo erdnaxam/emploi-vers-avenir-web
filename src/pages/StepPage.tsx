@@ -19,28 +19,28 @@ const StepPage = () => {
       resources: [
         {
           id: "r1",
-          type: "document",
+          type: "document" as const,
           title: "Modèle de CV",
           description: "Téléchargez et utilisez ce modèle pour créer votre CV.",
           url: "#"
         },
         {
           id: "r2",
-          type: "video",
+          type: "video" as const,
           title: "Comment rédiger un CV efficace",
           description: "Tutoriel vidéo de 10 minutes sur la création d'un CV.",
           url: "#"
         },
         {
           id: "r3",
-          type: "text",
+          type: "text" as const,
           title: "Guide des compétences à valoriser",
           description: "Liste des compétences les plus recherchées par secteur.",
           url: "#"
         },
         {
           id: "r4",
-          type: "audio",
+          type: "audio" as const,
           title: "Conseils d'experts",
           description: "Témoignages audio de recruteurs sur ce qu'ils recherchent dans un CV.",
           url: "#"
@@ -56,28 +56,28 @@ const StepPage = () => {
       resources: [
         {
           id: "r1",
-          type: "document",
+          type: "document" as const,
           title: "Tableau de suivi de recherche",
           description: "Outil pour organiser et suivre vos candidatures.",
           url: "#"
         },
         {
           id: "r2",
-          type: "video",
+          type: "video" as const,
           title: "Définir son projet professionnel",
           description: "Exercices pratiques pour clarifier vos objectifs.",
           url: "#"
         },
         {
           id: "r3",
-          type: "text",
+          type: "text" as const,
           title: "Les sites d'offres d'emploi par secteur",
           description: "Liste des meilleurs sites pour votre domaine.",
           url: "#"
         },
         {
           id: "r4",
-          type: "audio",
+          type: "audio" as const,
           title: "Témoignages de réussite",
           description: "Parcours inspirants de personnes ayant retrouvé un emploi.",
           url: "#"

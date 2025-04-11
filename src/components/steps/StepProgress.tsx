@@ -1,11 +1,10 @@
 
 import React from 'react';
-import { CheckIcon, LockIcon, ArrowUpRight } from 'lucide-react';
+import { CheckIcon, LockIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
 
 export interface Step {
   id: number;
@@ -31,50 +30,36 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => 
 
   return (
     <div className="w-full px-4 py-6">
-      <div className="progress-path overflow-x-auto md:overflow-visible">
+      <div className="flex flex-wrap justify-center items-center gap-2 mb-8">
         {steps.map((step, index) => {
           const isActive = step.status !== 'locked';
           
           // Line between steps (not for the last item)
           const showLine = index < steps.length - 1;
-          const lineClasses = cn(
-            "step-line w-full md:w-20",
-            steps[index + 1]?.status === 'locked' ? '' : 'completed'
-          );
 
           return (
             <React.Fragment key={step.id}>
               <TooltipProvider delayDuration={300}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex flex-col items-center relative z-10">
+                    <div className="flex flex-col items-center gap-2">
                       <button 
                         className={cn(
-                          "step-badge",
-                          step.status === 'completed' && "completed",
-                          step.status === 'current' && "current",
-                          step.status === 'locked' && "locked"
+                          "w-16 h-16 rounded-full border-2 flex items-center justify-center transition-all",
+                          step.status === 'completed' && "bg-success text-white border-success",
+                          step.status === 'current' && "bg-white text-primary border-primary",
+                          step.status === 'locked' && "bg-gray-100 text-gray-400 border-gray-300"
                         )}
                         onClick={() => goToStep(step)}
                         disabled={step.status === 'locked'}
                       >
-                        {step.status === 'completed' && <CheckIcon className="h-6 w-6" />}
-                        {step.status === 'current' && <span className="text-lg font-bold">{step.id}</span>}
-                        {step.status === 'locked' && <LockIcon className="h-5 w-5" />}
+                        {step.status === 'completed' && <CheckIcon className="h-8 w-8" />}
+                        {step.status === 'current' && <span className="text-lg font-medium">{step.id}</span>}
+                        {step.status === 'locked' && <LockIcon className="h-6 w-6" />}
                       </button>
-                      <div className="mt-2 text-center">
-                        <p className={cn(
-                          "font-medium text-sm",
-                          step.status === 'locked' ? "text-muted-foreground" : "text-foreground"
-                        )}>
-                          {step.title}
-                        </p>
-                        {step.status === 'current' && (
-                          <Badge variant="secondary" className="mt-1 text-xs animate-pulse">
-                            En cours
-                          </Badge>
-                        )}
-                      </div>
+                      <span className="text-xs text-center max-w-24 line-clamp-2">
+                        {step.title}
+                      </span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -85,20 +70,22 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => 
               </TooltipProvider>
 
               {showLine && (
-                <div className={lineClasses} />
+                <div className={cn(
+                  "w-8 h-0.5 hidden md:block",
+                  steps[index + 1]?.status === 'locked' ? "bg-gray-200" : "bg-success"
+                )} />
               )}
             </React.Fragment>
           );
         })}
       </div>
 
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center mt-6">
         <Button 
           variant="outline" 
-          className="group flex items-center space-x-2 text-primary hover:text-white"
+          className="border-2 rounded-md py-6 h-auto text-lg"
         >
           <span>Je veux être accompagné(e)</span>
-          <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
         </Button>
       </div>
     </div>
