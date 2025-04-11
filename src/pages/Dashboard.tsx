@@ -4,6 +4,7 @@ import PageLayout from '@/components/layout/PageLayout';
 import StepProgress, { Step } from '@/components/steps/StepProgress';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 const Dashboard = () => {
   const navigate = useNavigate();
