@@ -1,48 +1,48 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileCheck, Clock, Users, Award, Compass, BookOpen, MessagesSquare, Shield } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { FileText, Briefcase, Search, Headphones, MessagesSquare, CheckSquare, FileCheck, Users } from 'lucide-react';
 
 const features = [
   {
-    icon: <Compass className="h-10 w-10 text-primary" />,
-    title: "Parcours guidé",
-    description: "Un chemin clair et structuré en 8 étapes pour vous accompagner de la création de votre CV jusqu'à l'emploi."
+    icon: <FileText className="h-12 w-12 text-primary" />,
+    title: "1. Créer mon CV",
+    description: "Un outil simple pour créer un CV professionnel, adapté à votre recherche"
   },
   {
-    icon: <Clock className="h-10 w-10 text-primary" />,
-    title: "À votre rythme",
-    description: "Progressez selon vos disponibilités, chaque étape validée est sauvegardée."
+    icon: <Briefcase className="h-12 w-12 text-primary" />,
+    title: "2. Me préparer",
+    description: "Techniques et ressources pour une recherche d'emploi efficace"
   },
   {
-    icon: <FileCheck className="h-10 w-10 text-primary" />,
-    title: "Documents professionnels",
-    description: "Créez et stockez vos CV, lettres de motivation et autres documents importants."
+    icon: <Search className="h-12 w-12 text-primary" />,
+    title: "3. Trouver et postuler",
+    description: "Trouver des offres adaptées et envoyer des candidatures"
   },
   {
-    icon: <Award className="h-10 w-10 text-primary" />,
-    title: "Valorisation des succès",
-    description: "Chaque avancée est reconnue et célébrée pour maintenir votre motivation."
+    icon: <Headphones className="h-12 w-12 text-primary" />,
+    title: "4. Se préparer à l'entretien",
+    description: "Conseils et exercices pour réussir vos entretiens"
   },
   {
-    icon: <Users className="h-10 w-10 text-primary" />,
-    title: "Réseau de partenaires",
-    description: "Accédez à notre réseau de partenaires locaux pour un accompagnement personnalisé."
+    icon: <MessagesSquare className="h-12 w-12 text-primary" />,
+    title: "5. Passer un entretien",
+    description: "Conseils pratiques pour le jour de l'entretien"
   },
   {
-    icon: <BookOpen className="h-10 w-10 text-primary" />,
-    title: "Ressources accessibles",
-    description: "Contenus adaptés en format texte, audio et visuel pour s'adapter à tous les besoins."
+    icon: <CheckSquare className="h-12 w-12 text-primary" />,
+    title: "6. Recevoir une réponse",
+    description: "Gérer les suites de l'entretien, positives ou négatives"
   },
   {
-    icon: <MessagesSquare className="h-10 w-10 text-primary" />,
-    title: "Assistance dédiée",
-    description: "Un accompagnement humain disponible à chaque étape de votre parcours."
+    icon: <FileCheck className="h-12 w-12 text-primary" />,
+    title: "7. Signer mon contrat",
+    description: "Comprendre et vérifier votre contrat de travail"
   },
   {
-    icon: <Shield className="h-10 w-10 text-primary" />,
-    title: "Confidentialité assurée",
-    description: "Vos données personnelles sont protégées et sécurisées tout au long de votre parcours."
+    icon: <Users className="h-12 w-12 text-primary" />,
+    title: "8. Être accompagné",
+    description: "Soutien pendant la période d'essai et l'intégration"
   }
 ];
 
@@ -50,23 +50,47 @@ const FeatureSection = () => {
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold mb-4">Notre méthode d'accompagnement</h2>
-          <p className="text-lg text-muted-foreground">
-            Nous vous proposons un parcours complet et bienveillant pour vous aider à retrouver confiance et réussir votre recherche d'emploi.
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">Notre parcours en 8 étapes</h2>
+          <p className="text-xl">
+            Un chemin clair et adapté pour vous aider à trouver un emploi
           </p>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
-            <Card key={index} className="border transition-all duration-300 hover:shadow-md">
-              <CardHeader>
-                <div className="mb-4">{feature.icon}</div>
-                <CardTitle>{feature.title}</CardTitle>
-                <CardDescription>{feature.description}</CardDescription>
-              </CardHeader>
+            <Card key={index} className="border-2 transition-all duration-300 hover:shadow-md">
+              <CardContent className="pt-6 text-center">
+                <div className="mb-6 flex justify-center">{feature.icon}</div>
+                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </CardContent>
             </Card>
           ))}
+        </div>
+        
+        <div className="text-center mt-12 max-w-xl mx-auto">
+          <div className="bg-primary/10 p-6 rounded-lg">
+            <h3 className="text-xl font-bold mb-3">À chaque étape :</h3>
+            <ul className="text-left space-y-3 text-lg">
+              <li className="flex items-center gap-2">
+                <div className="bg-primary/20 p-1 rounded-full">✅</div>
+                <span>Des ressources adaptées à votre rythme</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="bg-primary/20 p-1 rounded-full">✅</div>
+                <span>La possibilité de demander de l'aide</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="bg-primary/20 p-1 rounded-full">✅</div>
+                <span>Des récompenses quand vous progressez</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="bg-primary/20 p-1 rounded-full">✅</div>
+                <span>Un accompagnement humain si besoin</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>

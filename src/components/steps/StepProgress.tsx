@@ -50,23 +50,23 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => 
                 disabled={step.status === 'locked'}
               >
                 <div className={cn(
-                  "w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all",
+                  "w-14 h-14 rounded-full border-2 flex items-center justify-center transition-all",
                   step.status === 'completed' && "bg-success text-white border-success",
                   step.status === 'current' && "bg-white text-primary border-primary",
                   step.status === 'locked' && "bg-gray-100 text-gray-400 border-gray-300"
                 )}>
-                  {step.status === 'completed' && <CheckIcon className="h-6 w-6" />}
-                  {step.status === 'current' && <span className="text-lg font-medium">{step.id}</span>}
-                  {step.status === 'locked' && <LockIcon className="h-5 w-5" />}
+                  {step.status === 'completed' && <CheckIcon className="h-7 w-7" />}
+                  {step.status === 'current' && <span className="text-xl font-bold">{step.id}</span>}
+                  {step.status === 'locked' && <LockIcon className="h-6 w-6" />}
                 </div>
-                <span className="text-sm text-center max-w-20">
+                <span className="text-sm font-medium text-center max-w-24">
                   {step.title}
                 </span>
               </button>
               
               {showLine && (
                 <div className={cn(
-                  "w-6 h-0.5 hidden md:block",
+                  "w-8 h-1 hidden md:block",
                   steps[index + 1]?.status === 'locked' ? "bg-gray-200" : "bg-success"
                 )} />
               )}
@@ -75,12 +75,14 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => 
         })}
       </div>
 
-      <div className="flex justify-center mt-4">
+      <div className="flex justify-center mt-6">
         <Button 
           variant="outline" 
-          className="border rounded-md py-4 h-auto"
+          size="lg"
+          className="border rounded-lg py-5 h-auto text-lg"
+          onClick={() => navigate('/aide')}
         >
-          <span>Besoin d'aide ?</span>
+          <span>Besoin d'accompagnement ?</span>
         </Button>
       </div>
     </div>
