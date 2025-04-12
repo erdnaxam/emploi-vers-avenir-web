@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { CheckIcon, LockIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { CheckIcon, LockIcon } from 'lucide-react';
 
 export interface Step {
   id: number;
@@ -36,8 +36,6 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => 
       <div className="flex flex-wrap justify-center items-center gap-2 mb-8">
         {steps.map((step, index) => {
           const isActive = step.status !== 'locked';
-          
-          // Line between steps (not for the last item)
           const showLine = index < steps.length - 1;
 
           return (
