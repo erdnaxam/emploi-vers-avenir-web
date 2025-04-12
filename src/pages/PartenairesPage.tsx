@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
-// Types pour nos partenaires
 interface Partner {
   id: string;
   name: string;
@@ -27,7 +25,6 @@ interface Partner {
   logoUrl?: string;
 }
 
-// Types pour les rendez-vous
 interface Appointment {
   id: string;
   partnerId: string;
@@ -40,7 +37,7 @@ interface Appointment {
 
 const categoryLabels = {
   'insertion': 'Insertion professionnelle',
-  'emploi': "Recherche d'emploi", // Use double quotes to handle inner single quote
+  'emploi': "Recherche d'emploi",
   'formation': 'Formation',
   'accompagnement': 'Accompagnement social',
   'aide': 'Aide aux démarches'
@@ -51,14 +48,13 @@ const PartenairesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   
-  // Données simulées pour les partenaires
   const [partners] = useState<Partner[]>([
     {
       id: '1',
       name: 'France Travail',
       category: 'emploi',
-      description: 'L'organisme public pour l'emploi en France',
-      services: ['Accompagnement personnalisé', 'Offres d'emploi', 'Ateliers de recherche'],
+      description: "L'organisme public pour l'emploi en France",
+      services: ["Accompagnement personnalisé", "Offres d'emploi", "Ateliers de recherche"],
       address: '15 rue de Paris, 75001 Paris',
       phone: '3949',
       email: 'contact@francetravail.fr',
@@ -69,7 +65,7 @@ const PartenairesPage = () => {
       id: '2',
       name: 'Croix-Rouge française',
       category: 'accompagnement',
-      description: 'Association d'aide humanitaire',
+      description: "Association d'aide humanitaire",
       services: ['Accompagnement social', 'Aide alimentaire', 'Insertion professionnelle'],
       address: '86 rue Didot, 75014 Paris',
       phone: '01 44 43 11 00',
@@ -94,7 +90,7 @@ const PartenairesPage = () => {
       name: 'Mission Locale',
       category: 'insertion',
       description: 'Accompagnement des jeunes dans leur insertion professionnelle',
-      services: ['Conseil en orientation', 'Aide à la recherche d'emploi', 'Accompagnement social'],
+      services: ["Conseil en orientation", "Aide à la recherche d'emploi", 'Accompagnement social'],
       address: '34 rue Nationale, 75013 Paris',
       phone: '01 44 97 28 85',
       website: 'https://www.mission-locale.fr',
@@ -102,7 +98,6 @@ const PartenairesPage = () => {
     }
   ]);
   
-  // Données simulées pour les rendez-vous
   const [appointments, setAppointments] = useState<Appointment[]>([
     {
       id: '1',
@@ -111,11 +106,10 @@ const PartenairesPage = () => {
       date: '2025-04-15',
       time: '14:30',
       type: 'présentiel',
-      notes: 'Apporter CV et pièce d'identité'
+      notes: 'Apporter CV et pièce d\'identité'
     }
   ]);
   
-  // État pour le formulaire de prise de rendez-vous
   const [newAppointment, setNewAppointment] = useState<Omit<Appointment, 'id' | 'partnerName'>>({
     partnerId: '',
     date: '',
@@ -124,7 +118,6 @@ const PartenairesPage = () => {
     notes: ''
   });
   
-  // Filtrer les partenaires selon la recherche et la catégorie
   const filteredPartners = partners.filter(partner => {
     const matchesSearch = partner.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           partner.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -132,7 +125,6 @@ const PartenairesPage = () => {
     return matchesSearch && matchesCategory;
   });
   
-  // Gérer la prise de rendez-vous
   const handleAppointmentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -178,7 +170,6 @@ const PartenairesPage = () => {
     });
   };
   
-  // Annuler un rendez-vous
   const handleCancelAppointment = (id: string) => {
     setAppointments(appointments.filter(app => app.id !== id));
     
