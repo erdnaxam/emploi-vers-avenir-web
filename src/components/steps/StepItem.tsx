@@ -46,9 +46,9 @@ const StepItem: React.FC<StepItemProps> = ({ step, index, totalSteps, onStepClic
       {showLine && (
         <div className={cn(
           "w-8 h-1 hidden md:block",
-          step.index + 1 < totalSteps && 
+          index + 1 < totalSteps && 
           step.status !== 'locked' && 
-          steps[index + 1]?.status !== 'locked' ? "bg-success" : "bg-gray-200"
+          step.status === 'completed' ? "bg-success" : "bg-gray-200"
         )} />
       )}
     </React.Fragment>
