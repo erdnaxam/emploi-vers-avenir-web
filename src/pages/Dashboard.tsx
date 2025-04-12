@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import StepProgress, { Step } from '@/components/steps/StepProgress';
@@ -17,7 +16,6 @@ const Dashboard = () => {
   const { user, updateUserProgress } = useAuth();
   const { toast } = useToast();
   
-  // Données des étapes du parcours
   const steps: Step[] = [
     {
       id: 1,
@@ -77,7 +75,6 @@ const Dashboard = () => {
     },
   ];
 
-  // Mettre à jour le dernier chemin visité
   useEffect(() => {
     if (user) {
       updateUserProgress(user.currentStep, '/dashboard');
@@ -90,12 +87,12 @@ const Dashboard = () => {
 
   const currentStep = steps.find(step => step.status === "current");
   
-  // Afficher un toast de bienvenue à l'utilisateur
   useEffect(() => {
     if (user) {
       toast({
         title: `Bienvenue ${user.name} !`,
         description: "Voici votre tableau de bord pour suivre votre progression.",
+        variant: "default"
       });
     }
   }, [user, toast]);
@@ -105,7 +102,6 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold mb-4 text-center">Mon parcours vers l'emploi</h1>
         
-        {/* Message de progression */}
         {currentStep && (
           <div className="bg-primary/10 text-primary p-4 mb-6 text-center rounded-lg">
             <span className="text-lg font-medium">
@@ -116,7 +112,6 @@ const Dashboard = () => {
           </div>
         )}
         
-        {/* Barre de progression */}
         <div className="mb-4 max-w-xl mx-auto">
           <div className="flex justify-between mb-1 text-sm">
             <span>Progression: {completedSteps}/{totalSteps} étapes</span>
@@ -125,7 +120,6 @@ const Dashboard = () => {
           <Progress value={progress} className="h-3" />
         </div>
 
-        {/* Tableau de bord résumé */}
         <div className="mb-8 max-w-xl mx-auto">
           <DashboardSummary 
             username={user?.name || "Utilisateur"}
