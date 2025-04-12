@@ -1,12 +1,34 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import StepContent from '@/components/steps/StepContent';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const StepPage = () => {
   const { stepId } = useParams<{ stepId: string }>();
   const navigate = useNavigate();
+  const { user, updateUserProgress } = useAuth();
+  const { toast } = useToast();
+  
+  // Vérifier si l'utilisateur peut accéder à cette étape
+  useEffect(() => {
+    if (user && stepId) {
+      const stepNumber = parseInt(stepId);
+      if (stepNumber > user.currentStep + 1) {
+        toast({
+          title: "Accès non autorisé",
+          description: "Vous devez compléter les étapes précédentes avant d'accéder à celle-ci.",
+          variant: "destructive"
+        });
+        navigate(`/etape/${user.currentStep}`);
+      } else {
+        // Mise à jour de la dernière page visitée
+        updateUserProgress(user.currentStep, `/etape/${stepId}`);
+      }
+    }
+  }, [stepId, user, navigate, updateUserProgress, toast]);
 
   // Simuler des données d'étapes
   const stepsData = [
@@ -84,7 +106,151 @@ const StepPage = () => {
         }
       ]
     },
-    // Autres étapes similaires...
+    {
+      id: 3,
+      title: "Trouver et postuler à des offres",
+      description: "Troisième étape : rechercher des offres adaptées et envoyer des candidatures.",
+      objective: "Apprendre à identifier les offres qui correspondent à votre profil, rédiger des lettres de motivation personnalisées et suivre vos candidatures.",
+      nextStepPath: "/etape/4",
+      resources: [
+        {
+          id: "r1",
+          type: "document" as const,
+          title: "Modèle de lettre de motivation",
+          description: "Exemples et modèles adaptables à différents secteurs.",
+          url: "#"
+        },
+        {
+          id: "r2",
+          type: "video" as const,
+          title: "Comment personnaliser sa candidature",
+          description: "Techniques pour adapter votre CV et lettre à chaque offre.",
+          url: "#"
+        },
+        {
+          id: "r3",
+          type: "text" as const,
+          title: "Guide de recherche d'offres",
+          description: "Les mots-clés efficaces pour trouver les bonnes offres.",
+          url: "#"
+        }
+      ]
+    },
+    {
+      id: 4,
+      title: "Me préparer à un entretien",
+      description: "Quatrième étape : préparer votre entretien d'embauche.",
+      objective: "Anticiper les questions courantes, préparer vos réponses et adopter la bonne posture pour l'entretien.",
+      nextStepPath: "/etape/5",
+      resources: [
+        {
+          id: "r1",
+          type: "document" as const,
+          title: "Liste des questions fréquentes",
+          description: "Questions les plus posées en entretien avec des conseils de réponse.",
+          url: "#"
+        },
+        {
+          id: "r2",
+          type: "video" as const,
+          title: "Simulation d'entretien",
+          description: "Vidéo de mise en situation pour s'entraîner.",
+          url: "#"
+        }
+      ]
+    },
+    {
+      id: 5,
+      title: "Passer un entretien",
+      description: "Cinquième étape : conseils pour le jour J de l'entretien.",
+      objective: "Être à l'aise pendant l'entretien, savoir poser les bonnes questions et faire bonne impression.",
+      nextStepPath: "/etape/6",
+      resources: [
+        {
+          id: "r1",
+          type: "document" as const,
+          title: "Checklist avant l'entretien",
+          description: "Vérifications à faire la veille et le jour de l'entretien.",
+          url: "#"
+        },
+        {
+          id: "r2",
+          type: "audio" as const,
+          title: "Exercices de respiration",
+          description: "Techniques pour gérer le stress avant et pendant l'entretien.",
+          url: "#"
+        }
+      ]
+    },
+    {
+      id: 6,
+      title: "Recevoir une réponse",
+      description: "Sixième étape : gérer les suites de l'entretien, positives ou négatives.",
+      objective: "Savoir relancer après un entretien, analyser un refus et rebondir, ou négocier une offre.",
+      nextStepPath: "/etape/7",
+      resources: [
+        {
+          id: "r1",
+          type: "document" as const,
+          title: "Modèle d'email de relance",
+          description: "Exemples pour relancer après un entretien sans réponse.",
+          url: "#"
+        },
+        {
+          id: "r2",
+          type: "text" as const,
+          title: "Comment négocier son salaire",
+          description: "Conseils pour aborder sereinement la négociation salariale.",
+          url: "#"
+        }
+      ]
+    },
+    {
+      id: 7,
+      title: "Signer mon contrat",
+      description: "Septième étape : comprendre et vérifier votre contrat de travail.",
+      objective: "Connaître les éléments essentiels d'un contrat, savoir quels points vérifier avant signature.",
+      nextStepPath: "/etape/8",
+      resources: [
+        {
+          id: "r1",
+          type: "document" as const,
+          title: "Guide des types de contrats",
+          description: "Différences entre CDI, CDD, intérim, et autres contrats.",
+          url: "#"
+        },
+        {
+          id: "r2",
+          type: "video" as const,
+          title: "Les points de vigilance",
+          description: "Ce qu'il faut vérifier avant de signer un contrat.",
+          url: "#"
+        }
+      ]
+    },
+    {
+      id: 8,
+      title: "Être accompagné après l'embauche",
+      description: "Huitième étape : bien démarrer dans votre nouveau poste.",
+      objective: "Réussir votre intégration, traverser la période d'essai et commencer votre nouveau poste avec confiance.",
+      nextStepPath: "/dashboard",
+      resources: [
+        {
+          id: "r1",
+          type: "document" as const,
+          title: "Guide du premier mois",
+          description: "Les actions clés pour réussir votre intégration.",
+          url: "#"
+        },
+        {
+          id: "r2",
+          type: "text" as const,
+          title: "Droits et devoirs du salarié",
+          description: "Informations essentielles sur vos droits en entreprise.",
+          url: "#"
+        }
+      ]
+    }
   ];
 
   // Trouver l'étape correspondante
@@ -96,9 +262,22 @@ const StepPage = () => {
     return null;
   }
 
+  // Fonction pour valider une étape et passer à la suivante
+  const handleCompleteStep = () => {
+    if (user) {
+      // Mettre à jour la progression de l'utilisateur
+      updateUserProgress(Math.max(user.currentStep, currentStep.id), currentStep.nextStepPath);
+      
+      // Rediriger vers l'étape suivante
+      setTimeout(() => {
+        navigate(currentStep.nextStepPath);
+      }, 1500);
+    }
+  };
+
   return (
     <PageLayout>
-      <StepContent {...currentStep} />
+      <StepContent {...currentStep} onComplete={handleCompleteStep} />
     </PageLayout>
   );
 };

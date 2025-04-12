@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import StepProgress, { Step } from '@/components/steps/StepProgress';
 import { Button } from '@/components/ui/button';
@@ -7,85 +7,112 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, LifeBuoy, FileText } from 'lucide-react';
+import { BookOpen, LifeBuoy, FileText, Briefcase, Users } from 'lucide-react';
 import DashboardSummary from '@/components/dashboard/DashboardSummary';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user, updateUserProgress } = useAuth();
+  const { toast } = useToast();
   
-  // Données simulées pour la progression de l'utilisateur
+  // Données des étapes du parcours
   const steps: Step[] = [
     {
       id: 1,
       title: "Créer mon CV",
       description: "Créez un CV professionnel et adapté à votre recherche",
       path: "/etape/1",
-      status: "completed"
+      status: user && user.currentStep >= 1 ? "completed" : "locked"
     },
     {
       id: 2,
       title: "Me préparer à chercher un emploi",
       description: "Techniques et ressources pour une recherche efficace",
       path: "/etape/2",
-      status: "current"
+      status: user && user.currentStep >= 2 ? "completed" : user && user.currentStep >= 1 ? "current" : "locked"
     },
     {
       id: 3,
       title: "Trouver et postuler à des offres",
       description: "Répondre aux offres avec des candidatures adaptées",
       path: "/etape/3",
-      status: "locked"
+      status: user && user.currentStep >= 3 ? "completed" : user && user.currentStep >= 2 ? "current" : "locked"
     },
     {
       id: 4,
       title: "Me préparer à un entretien",
       description: "Se préparer pour réussir ses entretiens d'embauche",
       path: "/etape/4",
-      status: "locked"
+      status: user && user.currentStep >= 4 ? "completed" : user && user.currentStep >= 3 ? "current" : "locked"
     },
     {
       id: 5,
       title: "Passer un entretien",
       description: "Techniques pour être à l'aise pendant l'entretien",
       path: "/etape/5",
-      status: "locked"
+      status: user && user.currentStep >= 5 ? "completed" : user && user.currentStep >= 4 ? "current" : "locked"
     },
     {
       id: 6,
       title: "Recevoir une réponse",
       description: "Gérer les réponses, positives comme négatives",
       path: "/etape/6",
-      status: "locked"
+      status: user && user.currentStep >= 6 ? "completed" : user && user.currentStep >= 5 ? "current" : "locked"
     },
     {
       id: 7,
       title: "Signer mon contrat",
       description: "Comprendre et négocier votre contrat de travail",
       path: "/etape/7",
-      status: "locked"
+      status: user && user.currentStep >= 7 ? "completed" : user && user.currentStep >= 6 ? "current" : "locked"
     },
     {
       id: 8,
       title: "Être accompagné après l'embauche",
       description: "Réussir votre intégration et votre période d'essai",
       path: "/etape/8",
-      status: "locked"
+      status: user && user.currentStep >= 8 ? "completed" : user && user.currentStep >= 7 ? "current" : "locked"
     },
   ];
+
+  // Mettre à jour le dernier chemin visité
+  useEffect(() => {
+    if (user) {
+      updateUserProgress(user.currentStep, '/dashboard');
+    }
+  }, [user, updateUserProgress]);
 
   const completedSteps = steps.filter(step => step.status === "completed").length;
   const totalSteps = steps.length;
   const progress = (completedSteps / totalSteps) * 100;
+
+  const currentStep = steps.find(step => step.status === "current");
+  
+  // Afficher un toast de bienvenue à l'utilisateur
+  useEffect(() => {
+    if (user) {
+      toast({
+        title: `Bienvenue ${user.name} !`,
+        description: "Voici votre tableau de bord pour suivre votre progression.",
+      });
+    }
+  }, [user, toast]);
 
   return (
     <PageLayout>
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold mb-4 text-center">Mon parcours vers l'emploi</h1>
         
-        {/* Notification de progression */}
-        {steps.find(step => step.status === "completed") && (
-          <div className="bg-success/10 text-success p-3 mb-6 text-center rounded-md">
-            <span className="text-lg font-medium">📣 Bravo ! Vous avancez bien dans votre parcours.</span>
+        {/* Message de progression */}
+        {currentStep && (
+          <div className="bg-primary/10 text-primary p-4 mb-6 text-center rounded-lg">
+            <span className="text-lg font-medium">
+              {completedSteps === 0 
+                ? "👋 Bienvenue ! Commencez votre parcours avec la première étape." 
+                : `📣 Vous êtes à l'étape ${currentStep.id} : ${currentStep.title}`}
+            </span>
           </div>
         )}
         
@@ -101,24 +128,30 @@ const Dashboard = () => {
         {/* Tableau de bord résumé */}
         <div className="mb-8 max-w-xl mx-auto">
           <DashboardSummary 
-            username="Alex"
+            username={user?.name || "Utilisateur"}
             completedSteps={completedSteps}
             totalSteps={totalSteps}
-            lastActivity="Aujourd'hui à 14:30"
+            lastActivity="Aujourd'hui"
             achievements={[
-              {
+              ...(completedSteps >= 1 ? [{
                 id: "ach1",
                 title: "Première étape terminée",
                 description: "Vous avez créé votre CV avec succès",
-                date: "10/04/2025"
-              }
+                date: new Date().toLocaleDateString('fr-FR')
+              }] : []),
+              ...(completedSteps >= 3 ? [{
+                id: "ach2",
+                title: "Candidature envoyée",
+                description: "Vous avez postulé à votre première offre",
+                date: new Date().toLocaleDateString('fr-FR')
+              }] : []),
             ]}
           />
         </div>
 
         <div className="mb-8 bg-white rounded-lg shadow-sm p-4">
           <h2 className="text-xl font-medium mb-3 text-center">Mon chemin vers l'emploi</h2>
-          <StepProgress steps={steps} currentStepId={2} />
+          <StepProgress steps={steps} currentStepId={user?.currentStep || 1} />
         </div>
 
         <div className="flex flex-col gap-3 max-w-xl mx-auto mb-8">
@@ -161,6 +194,24 @@ const Dashboard = () => {
           >
             <FileText className="h-5 w-5" />
             Mes documents
+          </Button>
+          
+          <Button 
+            variant="secondary" 
+            className="text-lg py-6 h-auto w-full flex items-center justify-center gap-2"
+            onClick={() => navigate('/candidatures')}
+          >
+            <Briefcase className="h-5 w-5" />
+            Mes candidatures
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="text-lg py-6 h-auto w-full flex items-center justify-center gap-2"
+            onClick={() => navigate('/partenaires')}
+          >
+            <Users className="h-5 w-5" />
+            Partenaires
           </Button>
           
           <Button 

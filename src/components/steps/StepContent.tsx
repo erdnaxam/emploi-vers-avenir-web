@@ -13,6 +13,7 @@ export interface StepContentProps {
   description: string;
   objective: string;
   nextStepPath?: string;
+  onComplete?: () => void;
   resources: Array<{
     id: string;
     type: 'video' | 'audio' | 'text' | 'document';
@@ -28,7 +29,8 @@ const StepContent: React.FC<StepContentProps> = ({
   description, 
   objective, 
   nextStepPath,
-  resources
+  resources,
+  onComplete
 }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -41,12 +43,15 @@ const StepContent: React.FC<StepContentProps> = ({
       variant: "default",
     });
     
-    // Simuler un délai avant la navigation
-    setTimeout(() => {
-      if (nextStepPath) {
+    // Appeler la fonction onComplete si elle existe
+    if (onComplete) {
+      onComplete();
+    } else if (nextStepPath) {
+      // Fallback si onComplete n'est pas fourni
+      setTimeout(() => {
         navigate(nextStepPath);
-      }
-    }, 1500);
+      }, 1500);
+    }
   };
 
   const getResourceIcon = (type: string) => {
@@ -122,7 +127,7 @@ const StepContent: React.FC<StepContentProps> = ({
         <Button 
           variant="outline" 
           className="py-6 h-auto text-lg rounded-lg w-full font-medium border-2 flex items-center justify-center gap-2"
-          onClick={() => window.alert("Fonctionnalité en développement")}
+          onClick={() => navigate('/partenaires')}
         >
           <Globe className="h-5 w-5" />
           <span>Prendre rendez-vous près de chez moi</span>

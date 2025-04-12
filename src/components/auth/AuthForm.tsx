@@ -6,38 +6,94 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { login, register } = useAuth();
+  const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [loginData, setLoginData] = useState({
+    email: '',
+    password: ''
+  });
+
+  const [registerData, setRegisterData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+
+  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setLoginData({ ...loginData, [id]: value });
+  };
+
+  const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    const fieldName = id.replace('-register', '').replace('confirm-', '');
+    setRegisterData({ ...registerData, [fieldName]: value });
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulation d'une connexion
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await login(loginData.email, loginData.password);
+      
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur votre espace personnel.",
       });
-      window.location.href = '/dashboard';
-    }, 1500);
+      
+      navigate('/dashboard');
+    } catch (error) {
+      toast({
+        title: "Erreur de connexion",
+        description: "Vérifiez vos identifiants et réessayez.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulation d'une inscription
-    setTimeout(() => {
+    if (registerData.password !== registerData.confirmPassword) {
+      toast({
+        title: "Erreur d'inscription",
+        description: "Les mots de passe ne correspondent pas.",
+        variant: "destructive"
+      });
       setIsLoading(false);
+      return;
+    }
+    
+    try {
+      await register(registerData.name, registerData.email, registerData.password);
+      
       toast({
         title: "Inscription réussie",
-        description: "Votre compte a été créé. Vous pouvez maintenant vous connecter.",
+        description: "Votre compte a été créé. Vous êtes maintenant connecté.",
       });
-    }, 1500);
+      
+      navigate('/dashboard');
+    } catch (error) {
+      toast({
+        title: "Erreur d'inscription",
+        description: "Une erreur est survenue lors de l'inscription.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -59,7 +115,14 @@ export const AuthForm = () => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="votre@email.fr" required />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="votre@email.fr" 
+                    required 
+                    value={loginData.email}
+                    onChange={handleLoginChange}
+                  />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -68,7 +131,13 @@ export const AuthForm = () => {
                       Mot de passe oublié ?
                     </a>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    required 
+                    value={loginData.password}
+                    onChange={handleLoginChange}
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Connexion en cours..." : "Se connecter"}
@@ -82,19 +151,44 @@ export const AuthForm = () => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nom complet</Label>
-                  <Input id="name" placeholder="Votre nom" required />
+                  <Input 
+                    id="name" 
+                    placeholder="Votre nom" 
+                    required 
+                    value={registerData.name}
+                    onChange={handleRegisterChange}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email-register">Email</Label>
-                  <Input id="email-register" type="email" placeholder="votre@email.fr" required />
+                  <Input 
+                    id="email-register" 
+                    type="email" 
+                    placeholder="votre@email.fr" 
+                    required 
+                    value={registerData.email}
+                    onChange={handleRegisterChange}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-register">Mot de passe</Label>
-                  <Input id="password-register" type="password" required />
+                  <Input 
+                    id="password-register" 
+                    type="password" 
+                    required 
+                    value={registerData.password}
+                    onChange={handleRegisterChange}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
-                  <Input id="confirm-password" type="password" required />
+                  <Input 
+                    id="confirm-password" 
+                    type="password" 
+                    required 
+                    value={registerData.confirmPassword}
+                    onChange={handleRegisterChange}
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Inscription en cours..." : "S'inscrire"}

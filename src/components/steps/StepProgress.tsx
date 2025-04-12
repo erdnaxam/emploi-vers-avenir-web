@@ -4,6 +4,7 @@ import { CheckIcon, LockIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface Step {
   id: number;
@@ -20,9 +21,12 @@ interface StepProgressProps {
 
 const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => {
   const navigate = useNavigate();
+  const { updateUserProgress } = useAuth();
 
   const goToStep = (step: Step) => {
     if (step.status !== 'locked') {
+      // Mettre à jour le chemin visité pour la persistance
+      updateUserProgress(currentStepId, step.path);
       navigate(step.path);
     }
   };
