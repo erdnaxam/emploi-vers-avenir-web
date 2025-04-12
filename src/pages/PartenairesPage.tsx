@@ -40,7 +40,7 @@ interface Appointment {
 
 const categoryLabels = {
   'insertion': 'Insertion professionnelle',
-  'emploi': 'Recherche d'emploi',
+  'emploi': "Recherche d'emploi", // Use double quotes to handle inner single quote
   'formation': 'Formation',
   'accompagnement': 'Accompagnement social',
   'aide': 'Aide aux démarches'
