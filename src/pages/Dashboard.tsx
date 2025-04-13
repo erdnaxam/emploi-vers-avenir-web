@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import StepProgress from '@/components/steps/StepProgress';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
 import { getSteps } from '@/components/dashboard/StepsConfig';
 import DashboardSummary from '@/components/dashboard/DashboardSummary';
 import WelcomeMessage from '@/components/dashboard/WelcomeMessage';
@@ -13,7 +12,6 @@ import ActionButtons from '@/components/dashboard/ActionButtons';
 
 const Dashboard = () => {
   const { user, updateUserProgress } = useAuth();
-  const { toast } = useToast();
   
   const steps = getSteps(user?.currentStep || 0);
 
@@ -27,16 +25,6 @@ const Dashboard = () => {
   const totalSteps = steps.length;
   
   const currentStep = steps.find(step => step.status === "current");
-  
-  useEffect(() => {
-    if (user) {
-      toast({
-        title: `Bienvenue ${user.name || ''} !`,
-        description: "Voici votre tableau de bord pour suivre votre progression.",
-        variant: "default"
-      });
-    }
-  }, [user, toast]);
 
   return (
     <PageLayout>
