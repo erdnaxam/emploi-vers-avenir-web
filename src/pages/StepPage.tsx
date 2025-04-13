@@ -9,6 +9,15 @@ import VideoPlayer from '@/components/video/VideoPlayer';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { stepsData } from '@/data/stepsData';
 
+// Filter resources to only include allowed types for StepContent
+const filterResources = (resources: any[]) => {
+  return resources.map(resource => ({
+    ...resource,
+    // Ensure type is one of the allowed values
+    type: resource.type === 'tool' ? 'document' : resource.type
+  }));
+};
+
 const StepPage = () => {
   const { stepId } = useParams<{ stepId: string }>();
   const navigate = useNavigate();
@@ -76,7 +85,11 @@ const StepPage = () => {
         </Dialog>
       )}
       
-      <StepContent {...currentStep} onComplete={handleCompleteStep} />
+      <StepContent 
+        {...currentStep} 
+        onComplete={handleCompleteStep} 
+        resources={filterResources(currentStep.resources)} 
+      />
     </PageLayout>
   );
 };

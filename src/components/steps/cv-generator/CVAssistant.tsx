@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { Microphone, MicOff, Send, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { Mic, MicOff, Send, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
 
@@ -93,21 +92,18 @@ const CVAssistant: React.FC<CVAssistantProps> = ({ open, onOpenChange, onDataUpd
   };
 
   const startRecording = () => {
-    // Simulation - Dans une vraie implémentation, utilisez l'API Web Speech
     setIsRecording(true);
     toast({
       title: "Microphone activé",
       description: "Parlez clairement, je vous écoute...",
     });
     
-    // Simuler l'enregistrement après 3 secondes
     setTimeout(() => {
       stopRecording();
     }, 3000);
   };
 
   const stopRecording = () => {
-    // Simulation
     setIsRecording(false);
     setCurrentAnswer(prev => prev + " J'ai ajouté cette partie en parlant au micro.");
     toast({
@@ -119,9 +115,7 @@ const CVAssistant: React.FC<CVAssistantProps> = ({ open, onOpenChange, onDataUpd
   const processAnswers = () => {
     setIsProcessing(true);
     
-    // Simulation de traitement IA - En réalité, envoyez les données à une API
     setTimeout(() => {
-      // Générer des données de CV à partir des réponses
       const mockSkills = [
         { id: uuidv4(), name: "Accompagnement personnes âgées", level: "expert" },
         { id: uuidv4(), name: "Écoute active", level: "avancé" },
@@ -235,7 +229,7 @@ const CVAssistant: React.FC<CVAssistantProps> = ({ open, onOpenChange, onDataUpd
                 </>
               ) : (
                 <>
-                  <Microphone className="h-4 w-4" />
+                  <Mic className="h-4 w-4" />
                   Parler au micro
                 </>
               )}

@@ -35,7 +35,7 @@ interface LetterFormProps {
       conclusion: string;
     };
   };
-  onUpdate: (data: Partial<typeof initialData>) => void;
+  onUpdate: (data: Partial<typeof LetterFormProps['initialData']>) => void;
 }
 
 const LetterForm: React.FC<LetterFormProps> = ({ initialData, onUpdate }) => {
