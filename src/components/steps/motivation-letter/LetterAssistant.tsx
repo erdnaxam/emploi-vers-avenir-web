@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -215,7 +214,7 @@ const LetterAssistant: React.FC<LetterAssistantProps> = ({ open, onOpenChange, o
                 </>
               ) : (
                 <>
-                  <Microphone className="h-4 w-4" />
+                  <Mic className="h-4 w-4" />
                   Parler au micro
                 </>
               )}

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +34,33 @@ interface LetterFormProps {
       conclusion: string;
     };
   };
-  onUpdate: (data: Partial<typeof LetterFormProps['initialData']>) => void;
+  onUpdate: (data: Partial<{ 
+    recipient: {
+      company: string;
+      contactName: string;
+      contactTitle: string;
+      address: string;
+      city: string;
+      postalCode: string;
+    };
+    sender: {
+      firstName: string;
+      lastName: string;
+      address: string;
+      city: string;
+      postalCode: string;
+      email: string;
+      phone: string;
+    };
+    content: {
+      position: string;
+      jobReference: string;
+      introduction: string;
+      motivation: string;
+      skills: string;
+      conclusion: string;
+    };
+  }>) => void;
 }
 
 const LetterForm: React.FC<LetterFormProps> = ({ initialData, onUpdate }) => {
