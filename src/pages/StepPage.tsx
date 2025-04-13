@@ -7,7 +7,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import VideoPlayer from '@/components/video/VideoPlayer';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Mic, Globe, Calendar, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { stepsData } from '@/data/stepsData';
+import ProgressBar from '@/components/dashboard/ProgressBar';
 
 // Filter resources to only include allowed types for StepContent
 const filterResources = (resources: any[]) => {
@@ -24,6 +27,7 @@ const StepPage = () => {
   const { user, updateUserProgress } = useAuth();
   const { toast } = useToast();
   const [showIntroVideo, setShowIntroVideo] = useState(false);
+  const [showHelpOptions, setShowHelpOptions] = useState(false);
   
   // Check if this is step 1 and if user hasn't seen the intro video
   useEffect(() => {
@@ -42,6 +46,8 @@ const StepPage = () => {
 
   // Trouver l'étape correspondante
   const currentStep = stepsData.find(step => step.id === Number(stepId));
+  const steps = stepsData.length;
+  const currentStepNum = Number(stepId) || 0;
 
   // Rediriger si l'étape n'existe pas
   if (!currentStep) {
@@ -60,6 +66,13 @@ const StepPage = () => {
         localStorage.setItem('hasSeenIntroVideo', 'true');
       }
       
+      // Afficher un message de félicitations avec le nom de l'utilisateur
+      toast({
+        title: `🎉 Bravo ${user.name || ''} !`,
+        description: `Vous avez terminé l'étape "${currentStep.title}" avec succès.`,
+        variant: "default",
+      });
+      
       // Rediriger vers l'étape suivante
       setTimeout(() => {
         navigate(currentStep.nextStepPath);
@@ -70,6 +83,28 @@ const StepPage = () => {
   const handleVideoClose = () => {
     setShowIntroVideo(false);
     localStorage.setItem('hasSeenIntroVideo', 'true');
+  };
+
+  const handleHelpOptionClick = (optionType: string) => {
+    setShowHelpOptions(false);
+    
+    switch (optionType) {
+      case 'appointment':
+        navigate('/partenaires');
+        break;
+      case 'call':
+        // Simuler un appel (dans une vraie application, cela déclencherait une fonctionnalité d'appel)
+        toast({
+          title: "Appel au conseiller",
+          description: "Votre demande d'appel a été enregistrée. Un conseiller vous contactera prochainement.",
+        });
+        break;
+      case 'chat':
+        navigate('/aide');
+        break;
+      default:
+        navigate('/aide');
+    }
   };
 
   return (
@@ -85,11 +120,76 @@ const StepPage = () => {
         </Dialog>
       )}
       
-      <StepContent 
-        {...currentStep} 
-        onComplete={handleCompleteStep} 
-        resources={filterResources(currentStep.resources)} 
-      />
+      <Dialog open={showHelpOptions} onOpenChange={setShowHelpOptions}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Comment souhaitez-vous être accompagné(e) ?</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+            <Button 
+              variant="outline" 
+              className="flex flex-col items-center justify-center h-32 p-4 space-y-2"
+              onClick={() => handleHelpOptionClick('appointment')}
+            >
+              <Calendar className="h-8 w-8 text-primary" />
+              <div className="text-center">
+                <p className="font-medium">Rendez-vous en personne</p>
+                <p className="text-xs text-muted-foreground">Rencontrez un conseiller près de chez vous</p>
+              </div>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="flex flex-col items-center justify-center h-32 p-4 space-y-2"
+              onClick={() => handleHelpOptionClick('call')}
+            >
+              <Mic className="h-8 w-8 text-primary" />
+              <div className="text-center">
+                <p className="font-medium">Appel téléphonique</p>
+                <p className="text-xs text-muted-foreground">Parlez directement à un conseiller</p>
+              </div>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="flex flex-col items-center justify-center h-32 p-4 space-y-2"
+              onClick={() => handleHelpOptionClick('video')}
+            >
+              <Users className="h-8 w-8 text-primary" />
+              <div className="text-center">
+                <p className="font-medium">Visioconférence</p>
+                <p className="text-xs text-muted-foreground">Discutez par vidéo avec un expert</p>
+              </div>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="flex flex-col items-center justify-center h-32 p-4 space-y-2"
+              onClick={() => handleHelpOptionClick('chat')}
+            >
+              <Globe className="h-8 w-8 text-primary" />
+              <div className="text-center">
+                <p className="font-medium">Centre d'aide</p>
+                <p className="text-xs text-muted-foreground">Consultez nos ressources d'aide</p>
+              </div>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <ProgressBar 
+          completedSteps={currentStepNum-1} 
+          totalSteps={steps} 
+        />
+        
+        <StepContent 
+          {...currentStep} 
+          onComplete={handleCompleteStep} 
+          resources={filterResources(currentStep.resources)} 
+          onHelp={() => setShowHelpOptions(true)}
+        />
+      </div>
     </PageLayout>
   );
 };

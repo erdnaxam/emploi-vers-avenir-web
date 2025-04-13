@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MoveRight, Play, FileText, Volume2, LifeBuoy, Globe } from 'lucide-react';
+import { MoveRight, Play, FileText, Volume2, LifeBuoy, Globe, Mic, Calendar, HelpingHand } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,6 +14,7 @@ export interface StepContentProps {
   objective: string;
   nextStepPath?: string;
   onComplete?: () => void;
+  onHelp?: () => void;
   resources: Array<{
     id: string;
     type: 'video' | 'audio' | 'text' | 'document';
@@ -30,7 +31,8 @@ const StepContent: React.FC<StepContentProps> = ({
   objective, 
   nextStepPath,
   resources,
-  onComplete
+  onComplete,
+  onHelp
 }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -67,6 +69,14 @@ const StepContent: React.FC<StepContentProps> = ({
     }
   };
 
+  const handleHelpClick = () => {
+    if (onHelp) {
+      onHelp();
+    } else {
+      navigate('/aide');
+    }
+  };
+
   return (
     <div className="container px-4 py-6 max-w-2xl mx-auto">
       <div className="mb-6 text-center">
@@ -90,7 +100,7 @@ const StepContent: React.FC<StepContentProps> = ({
           <Button 
             key={resource.id} 
             variant="outline" 
-            className="justify-start text-left h-auto p-5 flex items-center gap-4 border-2" 
+            className="justify-start text-left h-auto p-5 flex items-center gap-4 border-2 hover:border-primary transition-colors" 
             asChild
           >
             <a href={resource.url} target="_blank" rel="noopener noreferrer">
@@ -115,23 +125,25 @@ const StepContent: React.FC<StepContentProps> = ({
           <MoveRight className="ml-2 h-5 w-5" />
         </Button>
         
-        <Button 
-          variant="outline" 
-          className="py-6 h-auto text-lg rounded-lg w-full font-medium border-2 flex items-center justify-center gap-2"
-          onClick={() => navigate('/aide')}
-        >
-          <LifeBuoy className="h-5 w-5" />
-          <span>J'ai besoin d'aide</span>
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          className="py-6 h-auto text-lg rounded-lg w-full font-medium border-2 flex items-center justify-center gap-2"
-          onClick={() => navigate('/partenaires')}
-        >
-          <Globe className="h-5 w-5" />
-          <span>Prendre rendez-vous près de chez moi</span>
-        </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Button 
+            variant="outline" 
+            className="py-6 h-auto text-lg rounded-lg w-full font-medium border-2 flex items-center justify-center gap-2 hover:bg-primary/10 hover:text-primary transition-colors"
+            onClick={handleHelpClick}
+          >
+            <HelpingHand className="h-5 w-5" />
+            <span>J'ai besoin d'aide</span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="py-6 h-auto text-lg rounded-lg w-full font-medium border-2 flex items-center justify-center gap-2 hover:bg-primary/10 hover:text-primary transition-colors"
+            onClick={() => navigate('/partenaires')}
+          >
+            <Calendar className="h-5 w-5" />
+            <span>Prendre rendez-vous</span>
+          </Button>
+        </div>
       </div>
     </div>
   );
