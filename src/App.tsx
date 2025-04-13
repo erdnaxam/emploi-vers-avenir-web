@@ -17,6 +17,8 @@ import NotFound from "./pages/NotFound";
 import CandidaturesPage from "./pages/CandidaturesPage";
 import PartenairesPage from "./pages/PartenairesPage";
 import IntroductionVideo from "./pages/IntroductionVideo";
+import CVGeneratorPage from "./pages/CVGeneratorPage";
+import MotivationLetterPage from "./pages/MotivationLetterPage";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +73,16 @@ const AppRoutes = () => {
       <Route path="/partenaires" element={
         <ProtectedRoute>
           <PartenairesPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/cv-generator" element={
+        <ProtectedRoute>
+          <CVGeneratorPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/motivation-letter-generator" element={
+        <ProtectedRoute>
+          <MotivationLetterPage />
         </ProtectedRoute>
       } />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
