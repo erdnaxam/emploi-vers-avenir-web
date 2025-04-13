@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { PlayCircle, ArrowRight, FileText, Briefcase, Search, Headphones, MessagesSquare, CheckSquare, FileCheck, Users } from 'lucide-react';
+import { PlayCircle, ArrowRight, FileText, Briefcase, Search, Headphones, MessagesSquare, CheckSquare, FileCheck, Users, VideoIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -68,6 +68,25 @@ const HeroSection = () => {
           Un accompagnement simple et adapté à vos besoins pour trouver un emploi
         </p>
         
+        <div className="mb-8 relative overflow-hidden rounded-xl shadow-lg">
+          <div className="relative aspect-video bg-black/20 flex items-center justify-center">
+            <img 
+              src="/placeholder.svg" 
+              alt="Vidéo de présentation" 
+              className="w-full h-full object-cover absolute opacity-60"
+            />
+            <Link 
+              to="/introduction" 
+              className="relative z-10 flex flex-col items-center gap-3 group"
+            >
+              <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                <VideoIcon className="h-10 w-10 text-white" />
+              </div>
+              <span className="text-white font-bold text-xl">Regarder la vidéo de présentation</span>
+            </Link>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {steps.map(step => (
             <Card 
@@ -96,7 +115,7 @@ const HeroSection = () => {
           </Button>
           
           <Button size="lg" variant="outline" className="px-6 py-6 text-xl rounded-lg h-auto w-full sm:w-auto border-2" asChild>
-            <Link to="#" className="flex items-center justify-center">
+            <Link to="/introduction" className="flex items-center justify-center">
               <PlayCircle className="mr-2 h-5 w-5" />
               <span>Voir comment ça marche</span>
             </Link>

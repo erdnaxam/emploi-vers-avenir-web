@@ -16,6 +16,7 @@ import StepPage from "./pages/StepPage";
 import NotFound from "./pages/NotFound";
 import CandidaturesPage from "./pages/CandidaturesPage";
 import PartenairesPage from "./pages/PartenairesPage";
+import IntroductionVideo from "./pages/IntroductionVideo";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,11 @@ const AppRoutes = () => {
       <Route path="/profile" element={
         <ProtectedRoute>
           <Profile />
+        </ProtectedRoute>
+      } />
+      <Route path="/introduction" element={
+        <ProtectedRoute>
+          <IntroductionVideo />
         </ProtectedRoute>
       } />
       <Route path="/etape/:stepId" element={
