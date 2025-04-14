@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Step } from '@/components/steps/StepProgress';
 import { useAuth } from '@/contexts/AuthContext';
-import { CheckCircle, LockIcon, Award, ArrowRight, Calendar } from 'lucide-react';
+import { CheckCircle, LockIcon, Award, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -66,8 +66,7 @@ const StepsList: React.FC<StepsListProps> = ({ steps }) => {
           <button
             className={cn(
               "flex flex-col justify-between h-full p-5 text-left rounded-lg border-2 w-full transition-all",
-              "aspect-square max-h-[280px]", // Force même hauteur et aspect carré
-              "space-y-3", // Espacement vertical entre les éléments
+              "space-y-3", // Vertical spacing between elements
               step.status === "current" ? "bg-primary text-white border-primary animate-pulse-slow" : "bg-white border-gray-200",
               step.status === "completed" ? "bg-success/10 border-success" : "",
               step.status === "locked" ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:shadow-md hover:scale-[1.01] transition-all"
@@ -104,30 +103,20 @@ const StepsList: React.FC<StepsListProps> = ({ steps }) => {
               )}
             </div>
             
-            <div className="flex flex-col space-y-2">
-              <div className={cn(
-                "text-xs flex items-center",
-                step.status === "current" ? "text-white/90" : "text-gray-500"
-              )}>
-                <Calendar className="h-3 w-3 mr-1" />
-                Rendez-vous disponibles en ligne/physique
+            {step.status !== "locked" && (
+              <div className="flex justify-end">
+                <Button 
+                  variant={step.status === "current" ? "secondary" : "ghost"} 
+                  size="sm" 
+                  className={cn(
+                    "ml-2",
+                    step.status === "current" ? "bg-white text-primary hover:bg-white/90" : ""
+                  )}
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </div>
-              
-              {step.status !== "locked" && (
-                <div className="flex justify-end">
-                  <Button 
-                    variant={step.status === "current" ? "secondary" : "ghost"} 
-                    size="sm" 
-                    className={cn(
-                      "ml-2",
-                      step.status === "current" ? "bg-white text-primary hover:bg-white/90" : ""
-                    )}
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
+            )}
           </button>
         </div>
       ))}
@@ -136,3 +125,4 @@ const StepsList: React.FC<StepsListProps> = ({ steps }) => {
 };
 
 export default StepsList;
+

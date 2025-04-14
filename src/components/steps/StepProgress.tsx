@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { CheckIcon, LockIcon, Calendar } from 'lucide-react';
+import { CheckIcon, LockIcon } from 'lucide-react';
 
 export interface Step {
   id: number;
@@ -63,11 +63,6 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => 
                 </div>
                 <span className="text-sm font-medium text-center max-w-24">
                   {step.title}
-                </span>
-                
-                <span className="text-[10px] text-muted-foreground flex items-center">
-                  <Calendar className="h-2 w-2 mr-1" />
-                  RDV disponible
                 </span>
               </button>
               
