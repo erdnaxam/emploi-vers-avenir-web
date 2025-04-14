@@ -85,6 +85,11 @@ const StepContent: React.FC<StepContentProps> = ({
         </Badge>
         <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
         <p className="text-muted-foreground mt-3 text-lg">{description}</p>
+        
+        <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
+          <Calendar className="h-4 w-4 mr-1" />
+          <span>Rendez-vous disponibles en ligne ou en physique à chaque étape</span>
+        </div>
       </div>
 
       <Card className="mb-8 border-2">

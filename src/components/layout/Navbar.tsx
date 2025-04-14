@@ -4,17 +4,28 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Home, BookOpen, File, LifeBuoy, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
+  // Always include Home in navigation
   const navLinks = [
     { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5 mr-1" /> },
-    { name: 'Mon parcours', path: '/dashboard', icon: <BookOpen className="h-5 w-5 mr-1" /> },
-    { name: 'Documents', path: '/documents', icon: <File className="h-5 w-5 mr-1" /> },
-    { name: 'Aide', path: '/aide', icon: <LifeBuoy className="h-5 w-5 mr-1" /> },
   ];
+  
+  // Add authenticated links only if user is logged in
+  if (isAuthenticated) {
+    navLinks.push(
+      { name: 'Mon parcours', path: '/dashboard', icon: <BookOpen className="h-5 w-5 mr-1" /> },
+      { name: 'Documents', path: '/documents', icon: <File className="h-5 w-5 mr-1" /> }
+    );
+  }
+  
+  // Always include help
+  navLinks.push({ name: 'Aide', path: '/aide', icon: <LifeBuoy className="h-5 w-5 mr-1" /> });
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -51,12 +62,14 @@ export function Navbar() {
                 </Link>
               </Button>
             ))}
-            <Button variant="ghost" asChild>
-              <Link to="/profile" className="flex items-center">
-                <User className="h-5 w-5 mr-1" />
-                <span>Compte</span>
-              </Link>
-            </Button>
+            {isAuthenticated && (
+              <Button variant="ghost" asChild>
+                <Link to="/profile" className="flex items-center">
+                  <User className="h-5 w-5 mr-1" />
+                  <span>Compte</span>
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -79,12 +92,14 @@ export function Navbar() {
                 </Link>
               </Button>
             ))}
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/profile" onClick={() => setIsOpen(false)} className="flex items-center">
-                <User className="h-5 w-5 mr-1" />
-                <span>Compte</span>
-              </Link>
-            </Button>
+            {isAuthenticated && (
+              <Button variant="ghost" asChild className="w-full justify-start">
+                <Link to="/profile" onClick={() => setIsOpen(false)} className="flex items-center">
+                  <User className="h-5 w-5 mr-1" />
+                  <span>Compte</span>
+                </Link>
+              </Button>
+            )}
           </div>
         )}
       </div>
