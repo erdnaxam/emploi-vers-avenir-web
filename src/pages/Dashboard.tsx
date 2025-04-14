@@ -5,7 +5,6 @@ import StepProgress from '@/components/steps/StepProgress';
 import { useAuth } from '@/contexts/AuthContext';
 import { getSteps } from '@/components/dashboard/StepsConfig';
 import DashboardSummary from '@/components/dashboard/DashboardSummary';
-import WelcomeMessage from '@/components/dashboard/WelcomeMessage';
 import ProgressBar from '@/components/dashboard/ProgressBar';
 import StepsList from '@/components/dashboard/StepsList';
 import ActionButtons from '@/components/dashboard/ActionButtons';
@@ -24,17 +23,10 @@ const Dashboard = () => {
   const completedSteps = steps.filter(step => step.status === "completed").length;
   const totalSteps = steps.length;
   
-  const currentStep = steps.find(step => step.status === "current");
-
   return (
     <PageLayout>
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold mb-4 text-center">Mon parcours vers l'emploi</h1>
-        
-        <WelcomeMessage 
-          currentStep={currentStep} 
-          completedSteps={completedSteps} 
-        />
         
         <ProgressBar 
           completedSteps={completedSteps} 

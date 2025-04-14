@@ -7,17 +7,26 @@ import { HelpingHand } from 'lucide-react';
 
 interface HelpButtonProps {
   className?: string;
+  text?: string;
+  icon?: React.ReactNode;
   onClick?: () => void;
+  to?: string;
 }
 
-const HelpButton: React.FC<HelpButtonProps> = ({ className, onClick }) => {
+const HelpButton: React.FC<HelpButtonProps> = ({ 
+  className, 
+  text = "Besoin d'accompagnement ?",
+  icon = <HelpingHand className="h-5 w-5" />,
+  onClick,
+  to = '/aide'
+}) => {
   const navigate = useNavigate();
   
   const handleClick = () => {
     if (onClick) {
       onClick();
-    } else {
-      navigate('/aide');
+    } else if (to) {
+      navigate(to);
     }
   };
   
@@ -28,8 +37,8 @@ const HelpButton: React.FC<HelpButtonProps> = ({ className, onClick }) => {
       className={cn("border rounded-lg py-5 h-auto text-lg flex items-center gap-2", className)}
       onClick={handleClick}
     >
-      <HelpingHand className="h-5 w-5" />
-      <span>Besoin d'accompagnement ?</span>
+      {icon}
+      <span>{text}</span>
     </Button>
   );
 };
