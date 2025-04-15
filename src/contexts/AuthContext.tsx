@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // Types pour notre contexte d'authentification
 type User = {
@@ -28,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Vérifier si l'utilisateur est déjà connecté au chargement
   useEffect(() => {
@@ -38,13 +39,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAuthenticated(true);
       
       // Rediriger vers la dernière page visitée s'il y en a une
-      if (parsedUser.lastVisitedPage && window.location.pathname === '/') {
-        navigate(parsedUser.lastVisitedPage);
-      } else if (parsedUser.currentStep && window.location.pathname === '/login') {
+      // Mais ne pas rediriger depuis la page d'accueil
+      if (parsedUser.lastVisitedPage && 
+          location.pathname !== '/' && 
+          location.pathname === '/login') {
         navigate('/dashboard');
       }
     }
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   // Fonction de connexion
   const login = async (email: string, password: string) => {

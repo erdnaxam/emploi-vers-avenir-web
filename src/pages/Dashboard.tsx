@@ -26,7 +26,7 @@ const Dashboard = () => {
   return (
     <PageLayout>
       <div className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold mb-4 text-center">Mon parcours vers l'emploi</h1>
+        <StepProgress steps={steps} currentStepId={user?.currentStep || 1} />
         
         <ProgressBar 
           completedSteps={completedSteps} 
@@ -56,12 +56,10 @@ const Dashboard = () => {
           />
         </div>
 
-        <div className="mb-8 bg-white rounded-lg shadow-sm p-4">
-          <h2 className="text-xl font-medium mb-3 text-center">Mon chemin vers l'emploi</h2>
-          <StepProgress steps={steps} currentStepId={user?.currentStep || 1} />
+        <div className="mb-8">
+          <h2 className="text-xl font-medium mb-3 text-center">Détail des étapes</h2>
+          <StepsList steps={steps} />
         </div>
-
-        <StepsList steps={steps} />
 
         <ActionButtons />
       </div>
