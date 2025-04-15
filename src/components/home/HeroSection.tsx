@@ -81,12 +81,6 @@ const HeroSection = () => {
               <span>Voir comment ça marche</span>
             </Link>
           </Button>
-          
-          <Button size="lg" variant="secondary" className="px-6 py-6 text-xl rounded-lg h-auto w-full sm:w-auto" asChild>
-            <Link to="/aide" className="flex items-center justify-center">
-              <span>Besoin d'aide</span>
-            </Link>
-          </Button>
         </div>
         
         <div className="mb-8 relative overflow-hidden rounded-xl shadow-lg">
