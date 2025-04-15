@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -68,6 +67,28 @@ const HeroSection = () => {
           Un accompagnement simple et adapté à vos besoins pour trouver un emploi
         </p>
         
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+          <Button size="lg" className="px-6 py-6 text-xl rounded-lg h-auto w-full sm:w-auto" asChild>
+            <Link to="/login" className="flex items-center justify-center">
+              <span>Commencer maintenant</span>
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
+          
+          <Button size="lg" variant="outline" className="px-6 py-6 text-xl rounded-lg h-auto w-full sm:w-auto border-2" asChild>
+            <Link to="/introduction" className="flex items-center justify-center">
+              <PlayCircle className="mr-2 h-5 w-5" />
+              <span>Voir comment ça marche</span>
+            </Link>
+          </Button>
+          
+          <Button size="lg" variant="secondary" className="px-6 py-6 text-xl rounded-lg h-auto w-full sm:w-auto" asChild>
+            <Link to="/aide" className="flex items-center justify-center">
+              <span>Besoin d'aide</span>
+            </Link>
+          </Button>
+        </div>
+        
         <div className="mb-8 relative overflow-hidden rounded-xl shadow-lg">
           <div className="relative aspect-video bg-black/20 flex items-center justify-center">
             <img 
@@ -104,22 +125,6 @@ const HeroSection = () => {
               <span className="text-sm text-muted-foreground">{step.description}</span>
             </Card>
           ))}
-        </div>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" className="px-6 py-6 text-xl rounded-lg h-auto w-full sm:w-auto" asChild>
-            <Link to="/login" className="flex items-center justify-center">
-              <span>Commencer maintenant</span>
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-          
-          <Button size="lg" variant="outline" className="px-6 py-6 text-xl rounded-lg h-auto w-full sm:w-auto border-2" asChild>
-            <Link to="/introduction" className="flex items-center justify-center">
-              <PlayCircle className="mr-2 h-5 w-5" />
-              <span>Voir comment ça marche</span>
-            </Link>
-          </Button>
         </div>
 
         <div className="mt-8 p-4 bg-muted rounded-lg text-center max-w-lg mx-auto">
