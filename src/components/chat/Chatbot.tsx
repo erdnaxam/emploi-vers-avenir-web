@@ -1,9 +1,8 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, User, Award, Zap, Star, Trophy, Heart } from 'lucide-react';
+import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, User, Award, Zap, Star, Trophy, Heart, Move } from 'lucide-react';
 import {
   Drawer,
   DrawerContent,
@@ -77,10 +76,8 @@ const stepResponses = {
 
 // Intelligence artificielle simplifiée pour le chatbot
 const getAIResponse = (query: string, currentStep: string): {text: string, points: number} => {
-  // Convertir la requête en minuscules pour faciliter la recherche
   const queryLower = query.toLowerCase();
   
-  // Mots-clés et leurs réponses
   const keywords = {
     'cv': {
       response: "Pour un CV efficace, mettez en avant vos compétences pertinentes, utilisez un format clair et faites-le relire par quelqu'un. Notre générateur de CV peut vous aider à créer un document professionnel.",
@@ -144,14 +141,12 @@ const getAIResponse = (query: string, currentStep: string): {text: string, point
     }
   };
 
-  // Recherche de mots-clés dans la question
   for (const [keyword, data] of Object.entries(keywords)) {
     if (queryLower.includes(keyword)) {
       return { text: data.response, points: data.points };
     }
   }
 
-  // Si aucun mot-clé n'est trouvé, utiliser une réponse basée sur l'étape actuelle
   const stepResponsesToUse = stepResponses[currentStep] || stepResponses['default'];
   const randomIndex = Math.floor(Math.random() * stepResponsesToUse.length);
   return { text: stepResponsesToUse[randomIndex], points: 1 };
@@ -177,7 +172,18 @@ const Chatbot: React.FC = () => {
   });
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
   const [lastPoints, setLastPoints] = useState(0);
+  const [position, setPosition] = useState(() => {
+    const savedPosition = localStorage.getItem('chatbot_position');
+    return savedPosition ? JSON.parse(savedPosition) : { x: 0, y: 0 };
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isChatbotHidden, setIsChatbotHidden] = useState(() => {
+    return localStorage.getItem('chatbot_hidden') === 'true';
+  });
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatbotRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { stepId } = useParams<{ stepId: string }>();
   const { user } = useAuth();
@@ -185,7 +191,6 @@ const Chatbot: React.FC = () => {
   
   const isMobile = window.innerWidth < 768;
 
-  // Obtenir le niveau actuel de l'utilisateur
   const getCurrentLevel = () => {
     const level = experienceLevels.reduce((acc, level) => {
       if (points >= level.threshold) return level;
@@ -200,7 +205,6 @@ const Chatbot: React.FC = () => {
     ? Math.min(((points - currentLevel.threshold) / (nextLevel.threshold - currentLevel.threshold)) * 100, 100) 
     : 100;
 
-  // Ajouter message de bienvenue au chargement
   useEffect(() => {
     if (messages.length === 0) {
       const welcomeMessage = {
@@ -213,23 +217,73 @@ const Chatbot: React.FC = () => {
     }
   }, [messages.length]);
 
-  // Persister les points
   useEffect(() => {
     localStorage.setItem('chatbot_points', points.toString());
   }, [points]);
 
-  // Auto-scroll vers le dernier message
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
-  // Envoi de message
+  useEffect(() => {
+    localStorage.setItem('chatbot_position', JSON.stringify(position));
+  }, [position]);
+
+  useEffect(() => {
+    localStorage.setItem('chatbot_hidden', String(isChatbotHidden));
+  }, [isChatbotHidden]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isMobile) return;
+    
+    setIsDragging(true);
+    const chatbotRect = chatbotRef.current?.getBoundingClientRect();
+    if (chatbotRect) {
+      setDragOffset({
+        x: e.clientX - chatbotRect.left,
+        y: e.clientY - chatbotRect.top
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const chatbotWidth = chatbotRef.current?.offsetWidth || 0;
+      const chatbotHeight = chatbotRef.current?.offsetHeight || 0;
+      
+      let newX = e.clientX - dragOffset.x;
+      let newY = e.clientY - dragOffset.y;
+      
+      newX = Math.max(0, Math.min(viewportWidth - chatbotWidth, newX));
+      newY = Math.max(0, Math.min(viewportHeight - chatbotHeight, newY));
+      
+      setPosition({ x: newX, y: newY });
+    };
+    
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+    
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragOffset]);
+
   const sendMessage = () => {
     if (!inputValue.trim()) return;
 
-    // Ajouter le message de l'utilisateur
     const userMessage: Message = {
       id: Date.now().toString(),
       content: inputValue,
@@ -240,22 +294,18 @@ const Chatbot: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
 
-    // Simuler un délai de réponse et obtenir les points
     setTimeout(() => {
       const response = getAIResponse(inputValue, currentStep);
       
-      // Ajouter les points
       if (response.points > 0) {
         setLastPoints(response.points);
         setPoints(prev => prev + response.points);
         setShowPointsAnimation(true);
         
-        // Masquer l'animation après un délai
         setTimeout(() => {
           setShowPointsAnimation(false);
         }, 2000);
         
-        // Vérifier si l'utilisateur a franchi un niveau
         const prevLevel = getCurrentLevel().level;
         const newLevel = experienceLevels.reduce((acc, level) => {
           if (points + response.points >= level.threshold) return level;
@@ -282,69 +332,27 @@ const Chatbot: React.FC = () => {
     }, 600);
   };
 
-  // Gérer la touche Entrée
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       sendMessage();
     }
   };
 
-  // Format de la date pour les messages
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Composant pour le contenu du chatbot
-  const ChatbotContent = () => (
-    <>
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[80%] rounded-lg p-3 ${
-                message.sender === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted'
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                {message.sender === 'bot' ? (
-                  <Bot className="h-4 w-4" />
-                ) : (
-                  <User className="h-4 w-4" />
-                )}
-                <span className="text-xs font-medium">
-                  {message.sender === 'user' ? 'Vous' : 'Coach Emploi'}
-                </span>
-                <span className="text-xs opacity-70">{formatTime(message.timestamp)}</span>
-              </div>
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-      <div className="p-4 border-t">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Tapez votre message..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="flex-1"
-          />
-          <Button onClick={sendMessage} size="icon">
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </>
-  );
+  const toggleChatbotVisibility = () => {
+    setIsChatbotHidden(!isChatbotHidden);
+    if (isChatbotHidden) {
+      toast({
+        title: "Assistant virtuel",
+        description: "Votre assistant virtuel est à nouveau disponible.",
+        variant: "default",
+      });
+    }
+  };
 
-  // Rendu pour mobile (utilise Drawer)
   if (isMobile) {
     return (
       <>
@@ -356,95 +364,116 @@ const Chatbot: React.FC = () => {
           </div>
         )}
         
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button
-              className="fixed bottom-4 right-4 rounded-full h-14 w-14 shadow-lg"
-              onClick={() => setIsOpen(true)}
-            >
-              <Badge className="absolute -top-2 -right-2 bg-primary" variant="default">
-                {currentLevel.level}
-              </Badge>
-              <MessageCircle className="h-6 w-6" />
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="h-[80vh]">
-            <DrawerHeader className="border-b p-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <DrawerTitle className="flex items-center gap-2">
-                  <Bot className="h-5 w-5 text-primary" />
-                  Coach Emploi
-                </DrawerTitle>
-                <Badge variant="outline" className="ml-2 flex items-center gap-1">
-                  {currentLevel.icon}
-                  <span>{currentLevel.title}</span>
+        {!isChatbotHidden && (
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button
+                className="fixed bottom-4 right-4 rounded-full h-14 w-14 shadow-lg"
+                onClick={() => setIsOpen(true)}
+              >
+                <Badge className="absolute -top-2 -right-2 bg-primary" variant="default">
+                  {currentLevel.level}
                 </Badge>
-              </div>
-            </DrawerHeader>
-            
-            <div className="flex flex-col h-full">
-              <div className="px-4 pt-2">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-muted-foreground">Niveau {currentLevel.level}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {points}/{nextLevel.threshold} points
-                  </span>
+                <MessageCircle className="h-6 w-6" />
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="h-[80vh]">
+              <DrawerHeader className="border-b p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <DrawerTitle className="flex items-center gap-2">
+                    <Bot className="h-5 w-5 text-primary" />
+                    Coach Emploi
+                  </DrawerTitle>
+                  <Badge variant="outline" className="ml-2 flex items-center gap-1">
+                    {currentLevel.icon}
+                    <span>{currentLevel.title}</span>
+                  </Badge>
                 </div>
-                <Progress value={progressToNextLevel} className="h-2" />
-              </div>
-              
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-lg p-3 ${
-                        message.sender === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        {message.sender === 'bot' ? (
-                          <Bot className="h-4 w-4" />
-                        ) : (
-                          <User className="h-4 w-4" />
-                        )}
-                        <span className="text-xs font-medium">
-                          {message.sender === 'user' ? 'Vous' : 'Coach Emploi'}
-                        </span>
-                        <span className="text-xs opacity-70">{formatTime(message.timestamp)}</span>
-                      </div>
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-            </div>
-            <DrawerFooter className="p-3 border-t">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Tapez votre message..."
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="flex-1"
-                />
-                <Button onClick={sendMessage} size="icon">
-                  <Send className="h-4 w-4" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7" 
+                  onClick={() => setIsChatbotHidden(true)}
+                >
+                  <X className="h-4 w-4" />
                 </Button>
+              </DrawerHeader>
+              
+              <div className="flex flex-col h-full">
+                <div className="px-4 pt-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-muted-foreground">Niveau {currentLevel.level}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {points}/{nextLevel.threshold} points
+                    </span>
+                  </div>
+                  <Progress value={progressToNextLevel} className="h-2" />
+                </div>
+                
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[80%] rounded-lg p-3 ${
+                          message.sender === 'user'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          {message.sender === 'bot' ? (
+                            <Bot className="h-4 w-4" />
+                          ) : (
+                            <User className="h-4 w-4" />
+                          )}
+                          <span className="text-xs font-medium">
+                            {message.sender === 'user' ? 'Vous' : 'Coach Emploi'}
+                          </span>
+                          <span className="text-xs opacity-70">{formatTime(message.timestamp)}</span>
+                        </div>
+                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
               </div>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
+              <DrawerFooter className="p-3 border-t">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Tapez votre message..."
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    className="flex-1"
+                  />
+                  <Button onClick={sendMessage} size="icon">
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        )}
+        
+        {isChatbotHidden && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="fixed bottom-4 right-4 shadow-md"
+            onClick={toggleChatbotVisibility}
+          >
+            <MessageCircle className="h-5 w-5 mr-2" />
+            Afficher l'assistant
+          </Button>
+        )}
       </>
     );
   }
 
-  // Rendu pour desktop
   return (
     <>
       {showPointsAnimation && (
@@ -455,10 +484,28 @@ const Chatbot: React.FC = () => {
         </div>
       )}
       
-      {!isOpen ? (
+      {isChatbotHidden ? (
+        <Button
+          className="fixed bottom-4 right-4 shadow-md"
+          variant="outline"
+          onClick={toggleChatbotVisibility}
+        >
+          <MessageCircle className="h-5 w-5 mr-2" />
+          Afficher l'assistant
+        </Button>
+      ) : !isOpen ? (
         <Button
           className="fixed bottom-4 right-4 rounded-full h-14 w-14 shadow-lg hover:scale-110 transition-transform"
           onClick={() => setIsOpen(true)}
+          style={{
+            bottom: `${position.y}px`,
+            right: `${position.x}px`,
+            position: 'fixed',
+            transform: isDragging ? 'scale(1.05)' : 'scale(1)',
+            cursor: isDragging ? 'grabbing' : 'grab',
+          }}
+          ref={chatbotRef}
+          onMouseDown={handleMouseDown}
         >
           <Badge className="absolute -top-2 -right-2 bg-primary" variant="default">
             {currentLevel.level}
@@ -467,13 +514,24 @@ const Chatbot: React.FC = () => {
         </Button>
       ) : (
         <Card
-          className={`fixed bottom-4 right-4 shadow-lg transition-all duration-300 ${
+          className={`fixed shadow-lg transition-all duration-300 ${
             isMinimized ? 'w-72 h-16' : 'w-96 h-[500px]'
           } flex flex-col z-50`}
+          style={{
+            bottom: `${position.y}px`,
+            right: `${position.x}px`,
+            transform: isDragging ? 'scale(1.01)' : 'scale(1)',
+            cursor: 'auto',
+          }}
+          ref={chatbotRef}
         >
-          <CardHeader className="p-3 border-b flex-shrink-0">
+          <CardHeader 
+            className="p-3 border-b flex-shrink-0 cursor-grab active:cursor-grabbing"
+            onMouseDown={handleMouseDown}
+          >
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
+                <Move className="h-4 w-4 cursor-grab text-muted-foreground" />
                 <Bot className="h-5 w-5 text-primary" />
                 Coach Emploi
                 <Badge variant="outline" className="ml-2 flex items-center gap-1">
@@ -498,6 +556,14 @@ const Chatbot: React.FC = () => {
                     setIsOpen(false);
                     setIsMinimized(false);
                   }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-red-500 hover:text-red-700"
+                  onClick={() => setIsChatbotHidden(true)}
                 >
                   <X className="h-4 w-4" />
                 </Button>
