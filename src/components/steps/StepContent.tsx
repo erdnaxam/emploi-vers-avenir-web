@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MoveRight, Play, FileText, Volume2, LifeBuoy, Globe, Mic, Calendar, HelpingHand } from 'lucide-react';
+import { MoveRight, Play, FileText, Volume2, LifeBuoy, Globe, Mic, Calendar, HelpingHand, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -70,10 +70,16 @@ const StepContent: React.FC<StepContentProps> = ({
   };
 
   const handleHelpClick = () => {
+    // Afficher un toast pour indiquer que l'assistant est disponible
+    toast({
+      title: "Assistant virtuel disponible",
+      description: "Vous pouvez poser vos questions à notre assistant virtuel en bas à droite de l'écran.",
+      variant: "default",
+    });
+    
+    // Appeler la fonction onHelp si elle existe
     if (onHelp) {
       onHelp();
-    } else {
-      navigate('/aide');
     }
   };
 
@@ -131,8 +137,8 @@ const StepContent: React.FC<StepContentProps> = ({
             className="py-6 h-auto text-lg rounded-lg w-full font-medium border-2 flex items-center justify-center gap-2 hover:bg-primary/10 hover:text-primary transition-colors"
             onClick={handleHelpClick}
           >
-            <HelpingHand className="h-5 w-5" />
-            <span>J'ai besoin d'aide</span>
+            <MessageCircle className="h-5 w-5" />
+            <span>Parler à l'assistant</span>
           </Button>
           
           <Button 

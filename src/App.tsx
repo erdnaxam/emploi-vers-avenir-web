@@ -19,6 +19,7 @@ import PartenairesPage from "./pages/PartenairesPage";
 import IntroductionVideo from "./pages/IntroductionVideo";
 import CVGeneratorPage from "./pages/CVGeneratorPage";
 import MotivationLetterPage from "./pages/MotivationLetterPage";
+import Chatbot from "./components/chat/Chatbot";
 
 const queryClient = new QueryClient();
 
@@ -35,59 +36,66 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 // Composant AppRoutes pour utiliser useAuth après son initialisation
 const AppRoutes = () => {
+  const { isAuthenticated } = useAuth();
+  
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      } />
-      <Route path="/documents" element={
-        <ProtectedRoute>
-          <Documents />
-        </ProtectedRoute>
-      } />
-      <Route path="/aide" element={<Aide />} />
-      <Route path="/profile" element={
-        <ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>
-      } />
-      <Route path="/introduction" element={
-        <ProtectedRoute>
-          <IntroductionVideo />
-        </ProtectedRoute>
-      } />
-      <Route path="/etape/:stepId" element={
-        <ProtectedRoute>
-          <StepPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/candidatures" element={
-        <ProtectedRoute>
-          <CandidaturesPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/partenaires" element={
-        <ProtectedRoute>
-          <PartenairesPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/cv-generator" element={
-        <ProtectedRoute>
-          <CVGeneratorPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/motivation-letter-generator" element={
-        <ProtectedRoute>
-          <MotivationLetterPage />
-        </ProtectedRoute>
-      } />
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/documents" element={
+          <ProtectedRoute>
+            <Documents />
+          </ProtectedRoute>
+        } />
+        <Route path="/aide" element={<Aide />} />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
+        <Route path="/introduction" element={
+          <ProtectedRoute>
+            <IntroductionVideo />
+          </ProtectedRoute>
+        } />
+        <Route path="/etape/:stepId" element={
+          <ProtectedRoute>
+            <StepPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/candidatures" element={
+          <ProtectedRoute>
+            <CandidaturesPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/partenaires" element={
+          <ProtectedRoute>
+            <PartenairesPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/cv-generator" element={
+          <ProtectedRoute>
+            <CVGeneratorPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/motivation-letter-generator" element={
+          <ProtectedRoute>
+            <MotivationLetterPage />
+          </ProtectedRoute>
+        } />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      
+      {/* Afficher le chatbot seulement si l'utilisateur est authentifié */}
+      {isAuthenticated && <Chatbot />}
+    </>
   );
 };
 
