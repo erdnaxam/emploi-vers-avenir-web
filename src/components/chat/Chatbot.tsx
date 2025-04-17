@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, User, Award, Zap, Star, Trophy, Heart, Move } from 'lucide-react';
+import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, User, Award, Zap, Star, Trophy, Heart, Move, Mic, MicOff } from 'lucide-react';
 import {
   Drawer,
   DrawerContent,
@@ -178,6 +178,7 @@ const Chatbot: React.FC = () => {
   const [isChatbotHidden, setIsChatbotHidden] = useState(() => {
     return localStorage.getItem('chatbot_hidden') === 'true';
   });
+  const [isRecording, setIsRecording] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatbotButtonRef = useRef<HTMLButtonElement>(null);
@@ -279,6 +280,71 @@ const Chatbot: React.FC = () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, dragOffset]);
+
+  const startSpeechRecognition = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast({
+        title: "Dictée non disponible",
+        description: "Votre navigateur ne supporte pas la reconnaissance vocale. Essayez Chrome, Edge ou Safari.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsRecording(true);
+    
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'fr-FR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    recognition.onstart = () => {
+      setIsRecording(true);
+      toast({
+        title: "Dictée activée",
+        description: "Parlez clairement, je vous écoute...",
+      });
+    };
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInputValue(prev => prev + transcript);
+    };
+    
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error', event.error);
+      setIsRecording(false);
+      toast({
+        title: "Erreur de dictée",
+        description: "Une erreur s'est produite lors de la reconnaissance vocale.",
+        variant: "destructive",
+      });
+    };
+    
+    recognition.onend = () => {
+      setIsRecording(false);
+      toast({
+        title: "Dictée terminée",
+        description: "Votre texte a été ajouté",
+      });
+    };
+    
+    recognition.start();
+  };
+  
+  const stopSpeechRecognition = () => {
+    setIsRecording(false);
+  };
+  
+  const toggleSpeechRecognition = () => {
+    if (isRecording) {
+      stopSpeechRecognition();
+    } else {
+      startSpeechRecognition();
+    }
+  };
 
   const sendMessage = () => {
     if (!inputValue.trim()) return;
@@ -449,6 +515,18 @@ const Chatbot: React.FC = () => {
                     onKeyPress={handleKeyPress}
                     className="flex-1"
                   />
+                  <Button 
+                    variant={isRecording ? "destructive" : "outline"}
+                    size="icon" 
+                    onClick={toggleSpeechRecognition}
+                    className="flex-shrink-0"
+                  >
+                    {isRecording ? (
+                      <MicOff className="h-4 w-4" />
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )}
+                  </Button>
                   <Button onClick={sendMessage} size="icon">
                     <Send className="h-4 w-4" />
                   </Button>
@@ -626,6 +704,19 @@ const Chatbot: React.FC = () => {
                     onKeyPress={handleKeyPress}
                     className="flex-1"
                   />
+                  <Button 
+                    variant={isRecording ? "destructive" : "outline"}
+                    size="icon" 
+                    onClick={toggleSpeechRecognition}
+                    title={isRecording ? "Arrêter la dictée" : "Dicter votre message"}
+                    className="flex-shrink-0"
+                  >
+                    {isRecording ? (
+                      <MicOff className="h-4 w-4" />
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )}
+                  </Button>
                   <Button onClick={sendMessage} size="icon">
                     <Send className="h-4 w-4" />
                   </Button>
