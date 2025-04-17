@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, User } from 'lucide-react';
+import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, User, Award, Zap, Star, Trophy, Heart } from 'lucide-react';
 import {
   Drawer,
   DrawerContent,
@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useParams } from 'react-router-dom';
 import { stepsData } from '@/data/stepsData';
 import { useAuth } from '@/contexts/AuthContext';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 interface Message {
   id: string;
@@ -74,44 +76,107 @@ const stepResponses = {
 };
 
 // Intelligence artificielle simplifiée pour le chatbot
-const getAIResponse = (query: string, currentStep: string): string => {
+const getAIResponse = (query: string, currentStep: string): {text: string, points: number} => {
   // Convertir la requête en minuscules pour faciliter la recherche
   const queryLower = query.toLowerCase();
   
   // Mots-clés et leurs réponses
   const keywords = {
-    'cv': "Pour un CV efficace, mettez en avant vos compétences pertinentes, utilisez un format clair et faites-le relire par quelqu'un. Notre générateur de CV peut vous aider à créer un document professionnel.",
-    'lettre': "Une bonne lettre de motivation doit être personnalisée pour chaque offre. Elle doit expliquer pourquoi vous êtes intéressé par le poste et l'entreprise, et comment vos compétences correspondent aux besoins.",
-    'entretien': "Pour réussir un entretien, préparez-vous en recherchant l'entreprise, entraînez-vous aux questions courantes, et préparez vos propres questions. Soignez votre présentation et arrivez à l'heure le jour J.",
-    'salaire': "Pour négocier votre salaire, renseignez-vous sur les rémunérations du marché pour votre poste et votre expérience. Mettez en avant vos compétences et expériences qui justifient votre demande.",
-    'linkedin': "LinkedIn est un outil essentiel pour votre recherche d'emploi. Complétez votre profil à 100%, ajoutez une photo professionnelle et connectez-vous avec des personnes de votre secteur.",
-    'réseaux': "Les réseaux professionnels sont très utiles pour trouver un emploi. Informez votre entourage de votre recherche, participez à des événements de networking et soyez actif sur les réseaux sociaux professionnels.",
-    'préparation': "Pour bien vous préparer à chercher un emploi, définissez clairement votre projet professionnel, mettez à jour vos documents (CV, profils en ligne) et organisez votre temps de recherche.",
-    'questions': "Lors d'un entretien, préparez des questions pertinentes sur le poste, l'équipe, la culture d'entreprise et les perspectives d'évolution. Cela montre votre intérêt pour l'entreprise.",
-    'refus': "Face à un refus, demandez un retour pour comprendre les raisons et vous améliorer. Ne le prenez pas personnellement et restez positif pour vos prochaines candidatures.",
-    'période d\'essai': "Pendant la période d'essai, soyez à l'écoute, demandez des feedbacks réguliers, et n'hésitez pas à poser des questions pour vous intégrer au mieux.",
-    'contrat': "Avant de signer un contrat, vérifiez tous les éléments : salaire, avantages, horaires, missions, clause de non-concurrence, etc. N'hésitez pas à demander des clarifications si nécessaire.",
-    'candidature': "Pour une candidature efficace, personnalisez votre CV et votre lettre pour chaque offre, mettez en avant les compétences demandées dans l'annonce, et suivez up après l'envoi."
+    'cv': {
+      response: "Pour un CV efficace, mettez en avant vos compétences pertinentes, utilisez un format clair et faites-le relire par quelqu'un. Notre générateur de CV peut vous aider à créer un document professionnel.",
+      points: 5
+    },
+    'lettre': {
+      response: "Une bonne lettre de motivation doit être personnalisée pour chaque offre. Elle doit expliquer pourquoi vous êtes intéressé par le poste et l'entreprise, et comment vos compétences correspondent aux besoins.",
+      points: 5
+    },
+    'entretien': {
+      response: "Pour réussir un entretien, préparez-vous en recherchant l'entreprise, entraînez-vous aux questions courantes, et préparez vos propres questions. Soignez votre présentation et arrivez à l'heure le jour J.",
+      points: 10
+    },
+    'salaire': {
+      response: "Pour négocier votre salaire, renseignez-vous sur les rémunérations du marché pour votre poste et votre expérience. Mettez en avant vos compétences et expériences qui justifient votre demande.",
+      points: 15
+    },
+    'linkedin': {
+      response: "LinkedIn est un outil essentiel pour votre recherche d'emploi. Complétez votre profil à 100%, ajoutez une photo professionnelle et connectez-vous avec des personnes de votre secteur.",
+      points: 5
+    },
+    'réseaux': {
+      response: "Les réseaux professionnels sont très utiles pour trouver un emploi. Informez votre entourage de votre recherche, participez à des événements de networking et soyez actif sur les réseaux sociaux professionnels.",
+      points: 5
+    },
+    'préparation': {
+      response: "Pour bien vous préparer à chercher un emploi, définissez clairement votre projet professionnel, mettez à jour vos documents (CV, profils en ligne) et organisez votre temps de recherche.",
+      points: 10
+    },
+    'questions': {
+      response: "Lors d'un entretien, préparez des questions pertinentes sur le poste, l'équipe, la culture d'entreprise et les perspectives d'évolution. Cela montre votre intérêt pour l'entreprise.",
+      points: 10
+    },
+    'refus': {
+      response: "Face à un refus, demandez un retour pour comprendre les raisons et vous améliorer. Ne le prenez pas personnellement et restez positif pour vos prochaines candidatures.",
+      points: 10
+    },
+    'période d\'essai': {
+      response: "Pendant la période d'essai, soyez à l'écoute, demandez des feedbacks réguliers, et n'hésitez pas à poser des questions pour vous intégrer au mieux.",
+      points: 10
+    },
+    'contrat': {
+      response: "Avant de signer un contrat, vérifiez tous les éléments : salaire, avantages, horaires, missions, clause de non-concurrence, etc. N'hésitez pas à demander des clarifications si nécessaire.",
+      points: 10
+    },
+    'candidature': {
+      response: "Pour une candidature efficace, personnalisez votre CV et votre lettre pour chaque offre, mettez en avant les compétences demandées dans l'annonce, et suivez up après l'envoi.",
+      points: 10
+    },
+    'merci': {
+      response: "Je vous en prie ! C'est un plaisir de vous aider dans votre parcours vers l'emploi. N'hésitez pas si vous avez d'autres questions !",
+      points: 2
+    },
+    'bonjour': {
+      response: "Bonjour ! Comment puis-je vous aider aujourd'hui dans votre recherche d'emploi ?",
+      points: 1
+    },
+    'aide': {
+      response: "Je suis là pour vous aider ! Posez-moi des questions sur la rédaction de CV, la préparation aux entretiens, ou tout autre aspect de votre recherche d'emploi.",
+      points: 2
+    }
   };
 
   // Recherche de mots-clés dans la question
-  for (const [keyword, response] of Object.entries(keywords)) {
+  for (const [keyword, data] of Object.entries(keywords)) {
     if (queryLower.includes(keyword)) {
-      return response;
+      return { text: data.response, points: data.points };
     }
   }
 
   // Si aucun mot-clé n'est trouvé, utiliser une réponse basée sur l'étape actuelle
   const stepResponsesToUse = stepResponses[currentStep] || stepResponses['default'];
   const randomIndex = Math.floor(Math.random() * stepResponsesToUse.length);
-  return stepResponsesToUse[randomIndex];
+  return { text: stepResponsesToUse[randomIndex], points: 1 };
 };
+
+// Niveaux et badges pour la gamification
+const experienceLevels = [
+  { level: 1, threshold: 0, title: "Débutant", icon: <Star className="text-yellow-500" /> },
+  { level: 2, threshold: 20, title: "Apprenti", icon: <Zap className="text-blue-500" /> },
+  { level: 3, threshold: 50, title: "Intermédiaire", icon: <Award className="text-purple-500" /> },
+  { level: 4, threshold: 100, title: "Expert", icon: <Trophy className="text-orange-500" /> },
+  { level: 5, threshold: 200, title: "Maître", icon: <Heart className="text-red-500" /> }
+];
 
 const Chatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
+  const [points, setPoints] = useState(() => {
+    const savedPoints = localStorage.getItem('chatbot_points');
+    return savedPoints ? parseInt(savedPoints, 10) : 0;
+  });
+  const [showPointsAnimation, setShowPointsAnimation] = useState(false);
+  const [lastPoints, setLastPoints] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { stepId } = useParams<{ stepId: string }>();
@@ -120,18 +185,38 @@ const Chatbot: React.FC = () => {
   
   const isMobile = window.innerWidth < 768;
 
+  // Obtenir le niveau actuel de l'utilisateur
+  const getCurrentLevel = () => {
+    const level = experienceLevels.reduce((acc, level) => {
+      if (points >= level.threshold) return level;
+      return acc;
+    }, experienceLevels[0]);
+    return level;
+  };
+
+  const currentLevel = getCurrentLevel();
+  const nextLevel = experienceLevels.find(level => level.threshold > points) || currentLevel;
+  const progressToNextLevel = nextLevel.threshold > currentLevel.threshold 
+    ? Math.min(((points - currentLevel.threshold) / (nextLevel.threshold - currentLevel.threshold)) * 100, 100) 
+    : 100;
+
   // Ajouter message de bienvenue au chargement
   useEffect(() => {
     if (messages.length === 0) {
       const welcomeMessage = {
         id: Date.now().toString(),
-        content: "Bonjour ! Je suis votre assistant virtuel pour vous aider dans votre parcours vers l'emploi. Comment puis-je vous aider aujourd'hui ?",
+        content: "Bonjour ! Je suis votre coach emploi virtuel pour vous aider dans votre parcours. Comment puis-je vous aider aujourd'hui ?",
         sender: 'bot' as const,
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
     }
   }, [messages.length]);
+
+  // Persister les points
+  useEffect(() => {
+    localStorage.setItem('chatbot_points', points.toString());
+  }, [points]);
 
   // Auto-scroll vers le dernier message
   useEffect(() => {
@@ -155,11 +240,40 @@ const Chatbot: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
 
-    // Simuler un délai de réponse
+    // Simuler un délai de réponse et obtenir les points
     setTimeout(() => {
+      const response = getAIResponse(inputValue, currentStep);
+      
+      // Ajouter les points
+      if (response.points > 0) {
+        setLastPoints(response.points);
+        setPoints(prev => prev + response.points);
+        setShowPointsAnimation(true);
+        
+        // Masquer l'animation après un délai
+        setTimeout(() => {
+          setShowPointsAnimation(false);
+        }, 2000);
+        
+        // Vérifier si l'utilisateur a franchi un niveau
+        const prevLevel = getCurrentLevel().level;
+        const newLevel = experienceLevels.reduce((acc, level) => {
+          if (points + response.points >= level.threshold) return level;
+          return acc;
+        }, experienceLevels[0]);
+        
+        if (newLevel.level > prevLevel) {
+          toast({
+            title: "🎉 Niveau supérieur atteint !",
+            description: `Vous êtes maintenant ${newLevel.title} en recherche d'emploi.`,
+            variant: "default",
+          });
+        }
+      }
+      
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: getAIResponse(inputValue, currentStep),
+        content: response.text,
         sender: 'bot',
         timestamp: new Date()
       };
@@ -203,7 +317,7 @@ const Chatbot: React.FC = () => {
                   <User className="h-4 w-4" />
                 )}
                 <span className="text-xs font-medium">
-                  {message.sender === 'user' ? 'Vous' : 'Assistant'}
+                  {message.sender === 'user' ? 'Vous' : 'Coach Emploi'}
                 </span>
                 <span className="text-xs opacity-70">{formatTime(message.timestamp)}</span>
               </div>
@@ -233,78 +347,122 @@ const Chatbot: React.FC = () => {
   // Rendu pour mobile (utilise Drawer)
   if (isMobile) {
     return (
-      <Drawer>
-        <DrawerTrigger asChild>
-          <Button
-            className="fixed bottom-4 right-4 rounded-full h-14 w-14 shadow-lg"
-            onClick={() => setIsOpen(true)}
-          >
-            <MessageCircle className="h-6 w-6" />
-          </Button>
-        </DrawerTrigger>
-        <DrawerContent className="h-[80vh]">
-          <DrawerHeader>
-            <DrawerTitle>Assistant virtuel</DrawerTitle>
-          </DrawerHeader>
-          <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
-                      message.sender === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      {message.sender === 'bot' ? (
-                        <Bot className="h-4 w-4" />
-                      ) : (
-                        <User className="h-4 w-4" />
-                      )}
-                      <span className="text-xs font-medium">
-                        {message.sender === 'user' ? 'Vous' : 'Assistant'}
-                      </span>
-                      <span className="text-xs opacity-70">{formatTime(message.timestamp)}</span>
-                    </div>
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
+      <>
+        {showPointsAnimation && (
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 animate-bounce">
+            <div className="bg-primary text-white px-4 py-2 rounded-full text-xl font-bold">
+              +{lastPoints} points !
             </div>
           </div>
-          <DrawerFooter>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Tapez votre message..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="flex-1"
-              />
-              <Button onClick={sendMessage} size="icon">
-                <Send className="h-4 w-4" />
-              </Button>
+        )}
+        
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button
+              className="fixed bottom-4 right-4 rounded-full h-14 w-14 shadow-lg"
+              onClick={() => setIsOpen(true)}
+            >
+              <Badge className="absolute -top-2 -right-2 bg-primary" variant="default">
+                {currentLevel.level}
+              </Badge>
+              <MessageCircle className="h-6 w-6" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="h-[80vh]">
+            <DrawerHeader className="border-b p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <DrawerTitle className="flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-primary" />
+                  Coach Emploi
+                </DrawerTitle>
+                <Badge variant="outline" className="ml-2 flex items-center gap-1">
+                  {currentLevel.icon}
+                  <span>{currentLevel.title}</span>
+                </Badge>
+              </div>
+            </DrawerHeader>
+            
+            <div className="flex flex-col h-full">
+              <div className="px-4 pt-2">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-muted-foreground">Niveau {currentLevel.level}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {points}/{nextLevel.threshold} points
+                  </span>
+                </div>
+                <Progress value={progressToNextLevel} className="h-2" />
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg p-3 ${
+                        message.sender === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        {message.sender === 'bot' ? (
+                          <Bot className="h-4 w-4" />
+                        ) : (
+                          <User className="h-4 w-4" />
+                        )}
+                        <span className="text-xs font-medium">
+                          {message.sender === 'user' ? 'Vous' : 'Coach Emploi'}
+                        </span>
+                        <span className="text-xs opacity-70">{formatTime(message.timestamp)}</span>
+                      </div>
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+            <DrawerFooter className="p-3 border-t">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Tapez votre message..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="flex-1"
+                />
+                <Button onClick={sendMessage} size="icon">
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      </>
     );
   }
 
   // Rendu pour desktop
   return (
     <>
+      {showPointsAnimation && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 animate-bounce">
+          <div className="bg-primary text-white px-4 py-2 rounded-full text-xl font-bold">
+            +{lastPoints} points !
+          </div>
+        </div>
+      )}
+      
       {!isOpen ? (
         <Button
-          className="fixed bottom-4 right-4 rounded-full h-14 w-14 shadow-lg"
+          className="fixed bottom-4 right-4 rounded-full h-14 w-14 shadow-lg hover:scale-110 transition-transform"
           onClick={() => setIsOpen(true)}
         >
+          <Badge className="absolute -top-2 -right-2 bg-primary" variant="default">
+            {currentLevel.level}
+          </Badge>
           <MessageCircle className="h-6 w-6" />
         </Button>
       ) : (
@@ -317,7 +475,11 @@ const Chatbot: React.FC = () => {
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
                 <Bot className="h-5 w-5 text-primary" />
-                Assistant virtuel
+                Coach Emploi
+                <Badge variant="outline" className="ml-2 flex items-center gap-1">
+                  {currentLevel.icon}
+                  <span>{currentLevel.title}</span>
+                </Badge>
               </CardTitle>
               <div className="flex gap-1">
                 <Button
@@ -341,6 +503,18 @@ const Chatbot: React.FC = () => {
                 </Button>
               </div>
             </div>
+            
+            {!isMinimized && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-muted-foreground">Niveau {currentLevel.level}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {points}/{nextLevel.threshold} points
+                  </span>
+                </div>
+                <Progress value={progressToNextLevel} className="h-2" />
+              </div>
+            )}
           </CardHeader>
           
           {!isMinimized && (
@@ -366,7 +540,7 @@ const Chatbot: React.FC = () => {
                             <User className="h-4 w-4" />
                           )}
                           <span className="text-xs font-medium">
-                            {message.sender === 'user' ? 'Vous' : 'Assistant'}
+                            {message.sender === 'user' ? 'Vous' : 'Coach Emploi'}
                           </span>
                           <span className="text-xs opacity-70">{formatTime(message.timestamp)}</span>
                         </div>

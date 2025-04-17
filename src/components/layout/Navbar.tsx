@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Home, BookOpen, File, LifeBuoy, User } from 'lucide-react';
+import { Menu, X, Home, BookOpen, File, LifeBuoy, User, Briefcase, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Navbar() {
@@ -12,7 +12,9 @@ export function Navbar() {
   const navLinks = [
     { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5 mr-1" /> },
     { name: 'Mon parcours', path: '/dashboard', icon: <BookOpen className="h-5 w-5 mr-1" /> },
+    { name: 'Candidatures', path: '/candidatures', icon: <Briefcase className="h-5 w-5 mr-1" /> },
     { name: 'Documents', path: '/documents', icon: <File className="h-5 w-5 mr-1" /> },
+    { name: 'Partenaires', path: '/partenaires', icon: <Users className="h-5 w-5 mr-1" /> },
     { name: 'Aide', path: '/aide', icon: <LifeBuoy className="h-5 w-5 mr-1" /> },
   ];
 

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, MessageCircle } from 'lucide-react';
 
 export interface Step {
   id: number;
@@ -22,6 +22,7 @@ interface StepProgressProps {
 const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => {
   const navigate = useNavigate();
   const { updateUserProgress } = useAuth();
+  const { toast } = useAuth();
 
   const goToStep = (step: Step) => {
     if (step.status !== 'locked') {
@@ -65,8 +66,11 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => 
                   onClick={() => goToStep(step)}
                   className={cn(
                     "relative z-10 w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold border-2 transition-all",
-                    step.id <= 2 ? "bg-blue-700 border-blue-700 text-white" : "bg-gray-300 border-gray-300 text-gray-700",
-                    "hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                    step.status === 'completed' ? "bg-green-600 border-green-600 text-white" :
+                    step.status === 'current' ? "bg-blue-600 border-blue-600 text-white" :
+                    "bg-gray-300 border-gray-300 text-gray-700",
+                    "hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary",
+                    step.status === 'locked' && "cursor-not-allowed opacity-70"
                   )}
                   disabled={step.status === 'locked'}
                 >
@@ -86,9 +90,19 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => 
           variant="outline" 
           size="lg"
           className="border rounded-lg py-5 h-auto text-lg"
-          onClick={() => navigate('/aide')}
+          onClick={() => {
+            // Afficher un toast pour indiquer que l'assistant est disponible
+            if (toast) {
+              toast({
+                title: "Assistant virtuel disponible",
+                description: "Vous pouvez poser vos questions à notre coach emploi en bas à droite de l'écran.",
+                variant: "default",
+              });
+            }
+          }}
         >
-          <span>Besoin d'accompagnement ?</span>
+          <MessageCircle className="h-5 w-5 mr-2" />
+          <span>Parler à mon coach emploi</span>
         </Button>
       </div>
     </div>

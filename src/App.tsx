@@ -93,8 +93,8 @@ const AppRoutes = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       
-      {/* Afficher le chatbot seulement si l'utilisateur est authentifié */}
-      {isAuthenticated && <Chatbot />}
+      {/* Afficher le chatbot sur toutes les pages */}
+      <Chatbot />
     </>
   );
 };
