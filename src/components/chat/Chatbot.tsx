@@ -25,7 +25,6 @@ interface Message {
   timestamp: Date;
 }
 
-// Réponses prédéfinies pertinentes pour chaque étape
 const stepResponses = {
   '1': [
     "Pour créer un CV efficace, pensez à mettre en avant vos compétences et expériences les plus pertinentes pour le poste visé.",
@@ -74,7 +73,6 @@ const stepResponses = {
   ]
 };
 
-// Intelligence artificielle simplifiée pour le chatbot
 const getAIResponse = (query: string, currentStep: string): {text: string, points: number} => {
   const queryLower = query.toLowerCase();
   
@@ -152,7 +150,6 @@ const getAIResponse = (query: string, currentStep: string): {text: string, point
   return { text: stepResponsesToUse[randomIndex], points: 1 };
 };
 
-// Niveaux et badges pour la gamification
 const experienceLevels = [
   { level: 1, threshold: 0, title: "Débutant", icon: <Star className="text-yellow-500" /> },
   { level: 2, threshold: 20, title: "Apprenti", icon: <Zap className="text-blue-500" /> },
@@ -183,7 +180,9 @@ const Chatbot: React.FC = () => {
   });
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatbotRef = useRef<HTMLDivElement>(null);
+  const chatbotButtonRef = useRef<HTMLButtonElement>(null);
+  const chatbotCardRef = useRef<HTMLDivElement>(null);
+  
   const { toast } = useToast();
   const { stepId } = useParams<{ stepId: string }>();
   const { user } = useAuth();
@@ -239,7 +238,7 @@ const Chatbot: React.FC = () => {
     if (isMobile) return;
     
     setIsDragging(true);
-    const chatbotRect = chatbotRef.current?.getBoundingClientRect();
+    const chatbotRect = chatbotCardRef.current?.getBoundingClientRect();
     if (chatbotRect) {
       setDragOffset({
         x: e.clientX - chatbotRect.left,
@@ -254,8 +253,8 @@ const Chatbot: React.FC = () => {
       
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      const chatbotWidth = chatbotRef.current?.offsetWidth || 0;
-      const chatbotHeight = chatbotRef.current?.offsetHeight || 0;
+      const chatbotWidth = chatbotCardRef.current?.offsetWidth || 0;
+      const chatbotHeight = chatbotCardRef.current?.offsetHeight || 0;
       
       let newX = e.clientX - dragOffset.x;
       let newY = e.clientY - dragOffset.y;
@@ -504,7 +503,7 @@ const Chatbot: React.FC = () => {
             transform: isDragging ? 'scale(1.05)' : 'scale(1)',
             cursor: isDragging ? 'grabbing' : 'grab',
           }}
-          ref={chatbotRef}
+          ref={chatbotButtonRef}
           onMouseDown={handleMouseDown}
         >
           <Badge className="absolute -top-2 -right-2 bg-primary" variant="default">
@@ -523,7 +522,7 @@ const Chatbot: React.FC = () => {
             transform: isDragging ? 'scale(1.01)' : 'scale(1)',
             cursor: 'auto',
           }}
-          ref={chatbotRef}
+          ref={chatbotCardRef}
         >
           <CardHeader 
             className="p-3 border-b flex-shrink-0 cursor-grab active:cursor-grabbing"
