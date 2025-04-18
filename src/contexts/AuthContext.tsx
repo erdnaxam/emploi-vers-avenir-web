@@ -9,6 +9,7 @@ type User = {
   email: string;
   currentStep: number;
   lastVisitedPage: string;
+  lastLoginDate: string;
 };
 
 type AuthContextType = {
@@ -38,12 +39,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(parsedUser);
       setIsAuthenticated(true);
       
-      // Rediriger vers la dernière page visitée s'il y en a une
-      // Mais ne pas rediriger depuis la page d'accueil
-      if (parsedUser.lastVisitedPage && 
-          location.pathname !== '/' && 
-          location.pathname === '/login') {
-        navigate('/dashboard');
+      // Si on est sur la page de login et que l'utilisateur est déjà connecté, on le redirige
+      if (location.pathname === '/login') {
+        navigate(parsedUser.lastVisitedPage || '/dashboard');
       }
     }
   }, [navigate, location.pathname]);
@@ -58,7 +56,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name: email.split('@')[0],
         email,
         currentStep: 1,
-        lastVisitedPage: '/dashboard'
+        lastVisitedPage: '/dashboard',
+        lastLoginDate: new Date().toISOString()
       };
       
       setUser(mockUser);
@@ -79,7 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name,
         email,
         currentStep: 1,
-        lastVisitedPage: '/dashboard'
+        lastVisitedPage: '/dashboard',
+        lastLoginDate: new Date().toISOString()
       };
       
       setUser(mockUser);

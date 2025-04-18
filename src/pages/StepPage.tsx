@@ -11,6 +11,7 @@ import { Mic, Globe, Calendar, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { stepsData } from '@/data/stepsData';
 import ProgressBar from '@/components/dashboard/ProgressBar';
+import { Helmet } from 'react-helmet';
 
 // Simplification des ressources
 const filterResources = (resources: any[]) => {
@@ -87,6 +88,9 @@ const StepPage = () => {
   const { toast } = useToast();
   const [showIntroVideo, setShowIntroVideo] = useState(false);
   const [showHelpOptions, setShowHelpOptions] = useState(false);
+  const [canProceed, setCanProceed] = useState(false);
+  
+  const numericStepId = parseInt(stepId || '1');
   
   // Redirection si premier accès à l'étape 1
   useEffect(() => {
@@ -94,6 +98,18 @@ const StepPage = () => {
       navigate('/introduction');
     }
   }, [stepId, user, navigate]);
+
+  // Validation pour pouvoir accéder à cette étape
+  useEffect(() => {
+    if (user && numericStepId > 1 && user.currentStep < numericStepId - 1) {
+      toast({
+        title: "Étape non disponible",
+        description: "Vous devez d'abord terminer les étapes précédentes.",
+        variant: "destructive",
+      });
+      navigate(`/etape/${user.currentStep}`);
+    }
+  }, [user, numericStepId, navigate, toast]);
 
   // Mettre à jour la dernière page visitée
   useEffect(() => {
@@ -120,12 +136,22 @@ const StepPage = () => {
         localStorage.setItem('hasSeenIntroVideo', 'true');
       }
       
-      toast({
-        title: `🎉 Bravo ${user.name || ''} !`,
-        description: `Vous avez terminé l'étape "${currentStep.title}" avec succès.`,
-        variant: "default",
-      });
+      // Si c'est la dernière étape, afficher un message spécial
+      if (currentStep.id === 8) {
+        toast({
+          title: `🎉 Félicitations ${user.name || ''} !`,
+          description: `Vous avez terminé tout le parcours vers l'emploi. Bravo pour votre engagement !`,
+          variant: "success",
+        });
+      } else {
+        toast({
+          title: `🎉 Bravo ${user.name || ''} !`,
+          description: `Vous avez terminé l'étape "${currentStep.title}" avec succès.`,
+          variant: "default",
+        });
+      }
       
+      setCanProceed(true);
       setTimeout(() => navigate(currentStep.nextStepPath), 1500);
     }
   };
@@ -149,6 +175,12 @@ const StepPage = () => {
 
   return (
     <PageLayout>
+      <Helmet>
+        <title>{`Étape ${stepId}: ${currentStep.title} | EmploiAvenir`}</title>
+        <meta name="description" content={`${currentStep.description} - Parcours vers l'emploi EmploiAvenir`} />
+        <meta name="keywords" content={`emploi, recherche emploi, ${currentStep.title.toLowerCase()}, étape ${stepId}`} />
+      </Helmet>
+      
       {/* Vidéo d'intro modale */}
       <Dialog open={showIntroVideo} onOpenChange={setShowIntroVideo}>
         <DialogContent className="max-w-3xl">
@@ -171,7 +203,7 @@ const StepPage = () => {
       
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <ProgressBar 
-          completedSteps={Number(stepId)-1} 
+          completedSteps={user ? Math.min(user.currentStep, 8) : numericStepId-1} 
           totalSteps={stepsData.length} 
         />
         
@@ -180,6 +212,7 @@ const StepPage = () => {
           onComplete={handleCompleteStep} 
           resources={filterResources(currentStep.resources)} 
           onHelp={() => setShowHelpOptions(true)}
+          canProceed={canProceed}
         />
       </div>
     </PageLayout>

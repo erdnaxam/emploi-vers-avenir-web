@@ -4,19 +4,23 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Home, BookOpen, File, LifeBuoy, User, Briefcase, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   const navLinks = [
-    { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5 mr-1" /> },
-    { name: 'Mon parcours', path: '/dashboard', icon: <BookOpen className="h-5 w-5 mr-1" /> },
-    { name: 'Candidatures', path: '/candidatures', icon: <Briefcase className="h-5 w-5 mr-1" /> },
-    { name: 'Documents', path: '/documents', icon: <File className="h-5 w-5 mr-1" /> },
-    { name: 'Partenaires', path: '/partenaires', icon: <Users className="h-5 w-5 mr-1" /> },
-    { name: 'Aide', path: '/aide', icon: <LifeBuoy className="h-5 w-5 mr-1" /> },
+    { name: 'Accueil', path: '/', icon: <Home className="h-5 w-5 mr-1" />, auth: false },
+    { name: 'Mon parcours', path: '/dashboard', icon: <BookOpen className="h-5 w-5 mr-1" />, auth: true },
+    { name: 'Mes candidatures', path: '/candidatures', icon: <Briefcase className="h-5 w-5 mr-1" />, auth: true },
+    { name: 'Documents', path: '/documents', icon: <File className="h-5 w-5 mr-1" />, auth: true },
+    { name: 'Partenaires', path: '/partenaires', icon: <Users className="h-5 w-5 mr-1" />, auth: false },
+    { name: 'Aide', path: '/aide', icon: <LifeBuoy className="h-5 w-5 mr-1" />, auth: false },
   ];
+
+  const filteredNavLinks = navLinks.filter(link => !link.auth || isAuthenticated);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -37,7 +41,7 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            {navLinks.map((link) => (
+            {filteredNavLinks.map((link) => (
               <Button
                 key={link.path}
                 variant="ghost"
@@ -65,7 +69,7 @@ export function Navbar() {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden mt-2 pb-2 space-y-1 animate-slide-in">
-            {navLinks.map((link) => (
+            {filteredNavLinks.map((link) => (
               <Button
                 key={link.path}
                 variant="ghost"

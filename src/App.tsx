@@ -20,6 +20,8 @@ import IntroductionVideo from "./pages/IntroductionVideo";
 import CVGeneratorPage from "./pages/CVGeneratorPage";
 import MotivationLetterPage from "./pages/MotivationLetterPage";
 import Chatbot from "./components/chat/Chatbot";
+import VoiceDictation from "./components/VoiceDictation";
+import { Helmet } from "react-helmet";
 
 const queryClient = new QueryClient();
 
@@ -34,12 +36,39 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Route étape qui vérifie si l'utilisateur a complété l'étape précédente
+const StepRoute = ({ children, stepId }: { children: React.ReactNode, stepId: number }) => {
+  const { user } = useAuth();
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Vérifier si l'utilisateur peut accéder à cette étape
+  if (stepId > 1 && user.currentStep < stepId - 1) {
+    return <Navigate to={`/etape/${user.currentStep}`} replace />;
+  }
+
+  return <>{children}</>;
+};
+
 // Composant AppRoutes pour utiliser useAuth après son initialisation
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
   
   return (
     <>
+      <Helmet>
+        <title>EmploiAvenir - Votre parcours vers l'emploi</title>
+        <meta name="description" content="EmploiAvenir vous accompagne dans votre parcours vers l'emploi avec un parcours personnalisé en 8 étapes" />
+        <meta name="keywords" content="emploi, cv, lettre de motivation, recherche emploi, entretien, candidature, formation" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <meta property="og:title" content="EmploiAvenir - Votre parcours vers l'emploi" />
+        <meta property="og:description" content="Un accompagnement personnalisé pour votre recherche d'emploi" />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://emploiavenir.fr" />
+      </Helmet>
+      
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
@@ -65,20 +94,16 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } />
         <Route path="/etape/:stepId" element={
-          <ProtectedRoute>
+          <StepRoute stepId={parseInt(window.location.pathname.split('/').pop() || '1')}>
             <StepPage />
-          </ProtectedRoute>
+          </StepRoute>
         } />
         <Route path="/candidatures" element={
           <ProtectedRoute>
             <CandidaturesPage />
           </ProtectedRoute>
         } />
-        <Route path="/partenaires" element={
-          <ProtectedRoute>
-            <PartenairesPage />
-          </ProtectedRoute>
-        } />
+        <Route path="/partenaires" element={<PartenairesPage />} />
         <Route path="/cv-generator" element={
           <ProtectedRoute>
             <CVGeneratorPage />
@@ -95,6 +120,9 @@ const AppRoutes = () => {
       
       {/* Afficher le chatbot sur toutes les pages */}
       <Chatbot />
+      
+      {/* Ajouter le bouton de dictée vocale globale */}
+      <VoiceDictation />
     </>
   );
 };

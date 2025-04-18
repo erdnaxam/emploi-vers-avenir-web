@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -293,7 +294,7 @@ const Chatbot: React.FC = () => {
 
     setIsRecording(true);
     
-    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     
     recognition.lang = 'fr-FR';
@@ -313,7 +314,7 @@ const Chatbot: React.FC = () => {
       setInputValue(prev => prev + transcript);
     };
     
-    recognition.onerror = (event) => {
+    recognition.onerror = (event: any) => {
       console.error('Speech recognition error', event.error);
       setIsRecording(false);
       toast({
@@ -336,6 +337,13 @@ const Chatbot: React.FC = () => {
   
   const stopSpeechRecognition = () => {
     setIsRecording(false);
+    
+    // Arrêter l'instance de reconnaissance vocale si elle est active
+    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.abort();
+    }
   };
   
   const toggleSpeechRecognition = () => {
@@ -435,6 +443,7 @@ const Chatbot: React.FC = () => {
               <Button
                 className="fixed bottom-4 right-4 rounded-full h-14 w-14 shadow-lg"
                 onClick={() => setIsOpen(true)}
+                ref={chatbotButtonRef}
               >
                 <Badge className="absolute -top-2 -right-2 bg-primary" variant="default">
                   {currentLevel.level}

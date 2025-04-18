@@ -49,7 +49,7 @@ const StepsList: React.FC<StepsListProps> = ({ steps }) => {
   };
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
+    <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
       {steps.map((step) => (
         <div 
           key={step.id} 
@@ -125,4 +125,3 @@ const StepsList: React.FC<StepsListProps> = ({ steps }) => {
 };
 
 export default StepsList;
-
