@@ -13,15 +13,15 @@ import { stepsData } from '@/data/stepsData';
 import ProgressBar from '@/components/dashboard/ProgressBar';
 import { Helmet } from 'react-helmet-async';
 
-// Simplification des ressources
-const filterResources = (resources: any[]) => {
+// Simplify resource processing
+const processResources = (resources: any[]) => {
   return resources.map(resource => ({
     ...resource,
     type: resource.type === 'tool' ? 'document' : resource.type
   }));
 };
 
-// Composant pour l'aide
+// Help options dialog component
 const HelpOptionsDialog = ({ open, setOpen, onOptionSelect }) => (
   <Dialog open={open} onOpenChange={setOpen}>
     <DialogContent>
@@ -81,6 +81,18 @@ const HelpOptionsDialog = ({ open, setOpen, onOptionSelect }) => (
   </Dialog>
 );
 
+// Intro video dialog component
+const IntroVideoDialog = ({ open, setOpen, onSkip }) => (
+  <Dialog open={open} onOpenChange={setOpen}>
+    <DialogContent className="max-w-3xl">
+      <DialogHeader>
+        <DialogTitle>Bienvenue sur votre parcours vers l'emploi</DialogTitle>
+      </DialogHeader>
+      <VideoPlayer onSkip={onSkip} showInModal={true} />
+    </DialogContent>
+  </Dialog>
+);
+
 const StepPage = () => {
   const { stepId } = useParams<{ stepId: string }>();
   const navigate = useNavigate();
@@ -92,14 +104,14 @@ const StepPage = () => {
   
   const numericStepId = parseInt(stepId || '1');
   
-  // Redirection si premier accès à l'étape 1
+  // Check if this is the first access to step 1 and redirect to intro if needed
   useEffect(() => {
     if (stepId === '1' && user && !localStorage.getItem('hasSeenIntroVideo')) {
       navigate('/introduction');
     }
   }, [stepId, user, navigate]);
 
-  // Validation pour pouvoir accéder à cette étape
+  // Validate access to this step
   useEffect(() => {
     if (user && numericStepId > 1 && user.currentStep < numericStepId - 1) {
       toast({
@@ -110,32 +122,35 @@ const StepPage = () => {
     }
   }, [user, numericStepId, navigate, toast]);
 
-  // Mettre à jour la dernière page visitée
+  // Update last visited page
   useEffect(() => {
     if (user && stepId) {
       updateUserProgress(user.currentStep, `/etape/${stepId}`);
     }
   }, [stepId, user, updateUserProgress]);
 
-  // Trouver l'étape correspondante
+  // Find the current step
   const currentStep = stepsData.find(step => step.id === Number(stepId));
   
-  // Rediriger si l'étape n'existe pas
+  // Redirect if step doesn't exist
   if (!currentStep) {
     navigate('/dashboard');
     return null;
   }
 
-  // Gestion de l'étape complétée
+  // Handle step completion
   const handleCompleteStep = () => {
     if (user) {
-      updateUserProgress(Math.max(user.currentStep, currentStep.id), currentStep.nextStepPath);
+      // Update user progress, making sure to mark the current step as completed
+      // This ensures step 8 gets properly marked as completed when finished
+      const newCurrentStep = Math.max(user.currentStep, currentStep.id);
+      updateUserProgress(newCurrentStep, currentStep.nextStepPath);
       
       if (currentStep.id === 1) {
         localStorage.setItem('hasSeenIntroVideo', 'true');
       }
       
-      // Si c'est la dernière étape, afficher un message spécial
+      // Show appropriate success message
       if (currentStep.id === 8) {
         toast({
           title: `🎉 Félicitations ${user.name || ''} !`,
@@ -149,11 +164,12 @@ const StepPage = () => {
       }
       
       setCanProceed(true);
+      // Slight delay before navigation to show the success message
       setTimeout(() => navigate(currentStep.nextStepPath), 1500);
     }
   };
 
-  // Gestion des options d'aide
+  // Handle help option selection
   const handleHelpOptionClick = (optionType: string) => {
     setShowHelpOptions(false);
     
@@ -178,20 +194,17 @@ const StepPage = () => {
         <meta name="keywords" content={`emploi, recherche emploi, ${currentStep.title.toLowerCase()}, étape ${stepId}`} />
       </Helmet>
       
-      {/* Vidéo d'intro modale */}
-      <Dialog open={showIntroVideo} onOpenChange={setShowIntroVideo}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Bienvenue sur votre parcours vers l'emploi</DialogTitle>
-          </DialogHeader>
-          <VideoPlayer onSkip={() => {
-            setShowIntroVideo(false);
-            localStorage.setItem('hasSeenIntroVideo', 'true');
-          }} showInModal={true} />
-        </DialogContent>
-      </Dialog>
+      {/* Intro video dialog */}
+      <IntroVideoDialog 
+        open={showIntroVideo} 
+        setOpen={setShowIntroVideo} 
+        onSkip={() => {
+          setShowIntroVideo(false);
+          localStorage.setItem('hasSeenIntroVideo', 'true');
+        }} 
+      />
       
-      {/* Options d'aide */}
+      {/* Help options dialog */}
       <HelpOptionsDialog 
         open={showHelpOptions} 
         setOpen={setShowHelpOptions}
@@ -207,7 +220,7 @@ const StepPage = () => {
         <StepContent 
           {...currentStep}
           onComplete={handleCompleteStep} 
-          resources={filterResources(currentStep.resources)} 
+          resources={processResources(currentStep.resources)} 
           onHelp={() => setShowHelpOptions(true)}
         />
       </div>

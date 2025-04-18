@@ -25,7 +25,7 @@ import { HelmetProvider, Helmet } from "react-helmet-async";
 
 const queryClient = new QueryClient();
 
-// Route protégée qui vérifie si l'utilisateur est connecté
+// Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
   
@@ -36,7 +36,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Route étape qui vérifie si l'utilisateur a complété l'étape précédente
+// Step route component
 const StepRoute = ({ children, stepId }: { children: React.ReactNode, stepId: number }) => {
   const { user } = useAuth();
   
@@ -44,7 +44,7 @@ const StepRoute = ({ children, stepId }: { children: React.ReactNode, stepId: nu
     return <Navigate to="/login" replace />;
   }
   
-  // Vérifier si l'utilisateur peut accéder à cette étape
+  // Check if user can access this step
   if (stepId > 1 && user.currentStep < stepId - 1) {
     return <Navigate to={`/etape/${user.currentStep}`} replace />;
   }
@@ -52,10 +52,8 @@ const StepRoute = ({ children, stepId }: { children: React.ReactNode, stepId: nu
   return <>{children}</>;
 };
 
-// Composant AppRoutes pour utiliser useAuth après son initialisation
+// App routes component
 const AppRoutes = () => {
-  const { isAuthenticated } = useAuth();
-  
   return (
     <>
       <Helmet>
@@ -114,14 +112,12 @@ const AppRoutes = () => {
             <MotivationLetterPage />
           </ProtectedRoute>
         } />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        {/* Catch-all route for 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
       
-      {/* Afficher le chatbot sur toutes les pages */}
+      {/* Global components that appear on all pages */}
       <Chatbot />
-      
-      {/* Ajouter le bouton de dictée vocale globale */}
       <VoiceDictation />
     </>
   );

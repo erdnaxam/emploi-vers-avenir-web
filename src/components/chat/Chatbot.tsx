@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -172,7 +171,7 @@ const Chatbot: React.FC = () => {
   const [lastPoints, setLastPoints] = useState(0);
   const [position, setPosition] = useState(() => {
     const savedPosition = localStorage.getItem('chatbot_position');
-    return savedPosition ? JSON.parse(savedPosition) : { x: 0, y: 0 };
+    return savedPosition ? JSON.parse(savedPosition) : { x: 20, y: 20 };
   });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -184,6 +183,7 @@ const Chatbot: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatbotButtonRef = useRef<HTMLButtonElement>(null);
   const chatbotCardRef = useRef<HTMLDivElement>(null);
+  const dragHandleRef = useRef<HTMLDivElement>(null);
   
   const { toast } = useToast();
   const { stepId } = useParams<{ stepId: string }>();
@@ -237,50 +237,88 @@ const Chatbot: React.FC = () => {
   }, [isChatbotHidden]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (isMobile) return;
+    if (isMobile || !chatbotCardRef.current) return;
     
+    // Only allow dragging when clicking on the header/handle
+    if (dragHandleRef.current && !dragHandleRef.current.contains(e.target as Node)) {
+      return;
+    }
+    
+    e.preventDefault(); // Prevent text selection during drag
     setIsDragging(true);
-    const chatbotRect = chatbotCardRef.current?.getBoundingClientRect();
-    if (chatbotRect) {
-      setDragOffset({
-        x: e.clientX - chatbotRect.left,
-        y: e.clientY - chatbotRect.top
-      });
+    
+    const chatbotRect = chatbotCardRef.current.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - chatbotRect.left,
+      y: e.clientY - chatbotRect.top
+    });
+    
+    // Change cursor style
+    document.body.style.cursor = 'grabbing';
+    if (chatbotCardRef.current) {
+      chatbotCardRef.current.style.transition = 'none';
+      chatbotCardRef.current.style.transform = 'scale(1.02)';
     }
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
+      if (!isDragging || !chatbotCardRef.current) return;
       
+      // Smooth movement calculation
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      const chatbotWidth = chatbotCardRef.current?.offsetWidth || 0;
-      const chatbotHeight = chatbotCardRef.current?.offsetHeight || 0;
+      const chatbotWidth = chatbotCardRef.current.offsetWidth;
+      const chatbotHeight = chatbotCardRef.current.offsetHeight;
       
+      // Calculate new position with boundaries
       let newX = e.clientX - dragOffset.x;
       let newY = e.clientY - dragOffset.y;
       
+      // Keep chatbot fully within viewport
       newX = Math.max(0, Math.min(viewportWidth - chatbotWidth, newX));
       newY = Math.max(0, Math.min(viewportHeight - chatbotHeight, newY));
       
+      // Apply new position with smooth transition
+      chatbotCardRef.current.style.left = `${newX}px`;
+      chatbotCardRef.current.style.top = `${newY}px`;
+      
+      // Update state (but not on every move to avoid performance issues)
+      // We'll update the final position on mouse up
       setPosition({ x: newX, y: newY });
     };
     
     const handleMouseUp = () => {
+      if (!isDragging) return;
+      
       setIsDragging(false);
+      
+      // Reset cursor and add transition back
+      document.body.style.cursor = 'auto';
+      if (chatbotCardRef.current) {
+        chatbotCardRef.current.style.transition = 'transform 0.2s ease';
+        chatbotCardRef.current.style.transform = 'scale(1)';
+      }
+      
+      // Save position to localStorage
+      localStorage.setItem('chatbot_position', JSON.stringify(position));
     };
     
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      // Add event listeners to window for better tracking
+      window.addEventListener('mousemove', handleMouseMove, { passive: false });
+      window.addEventListener('mouseup', handleMouseUp);
+      // Disable text selection during drag
+      document.body.style.userSelect = 'none';
     }
     
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = 'auto';
     };
-  }, [isDragging, dragOffset]);
+  }, [isDragging, dragOffset, position]);
 
   const startSpeechRecognition = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -584,14 +622,14 @@ const Chatbot: React.FC = () => {
           className="fixed bottom-4 right-4 rounded-full h-14 w-14 shadow-lg hover:scale-110 transition-transform"
           onClick={() => setIsOpen(true)}
           style={{
-            bottom: `${position.y}px`,
-            right: `${position.x}px`,
+            bottom: '20px',
+            right: '20px',
             position: 'fixed',
-            transform: isDragging ? 'scale(1.05)' : 'scale(1)',
-            cursor: isDragging ? 'grabbing' : 'grab',
+            transform: 'scale(1)',
+            cursor: 'pointer',
+            zIndex: 50
           }}
           ref={chatbotButtonRef}
-          onMouseDown={handleMouseDown}
         >
           <Badge className="absolute -top-2 -right-2 bg-primary" variant="default">
             {currentLevel.level}
@@ -600,19 +638,21 @@ const Chatbot: React.FC = () => {
         </Button>
       ) : (
         <Card
-          className={`fixed shadow-lg transition-all duration-300 ${
+          className={`fixed shadow-lg ${
             isMinimized ? 'w-72 h-16' : 'w-96 h-[500px]'
           } flex flex-col z-50`}
           style={{
-            bottom: `${position.y}px`,
-            right: `${position.x}px`,
-            transform: isDragging ? 'scale(1.01)' : 'scale(1)',
-            cursor: 'auto',
+            position: 'fixed',
+            top: `${position.y}px`,
+            left: `${position.x}px`,
+            transition: isDragging ? 'none' : 'transform 0.2s ease',
+            zIndex: 50
           }}
           ref={chatbotCardRef}
         >
           <CardHeader 
             className="p-3 border-b flex-shrink-0 cursor-grab active:cursor-grabbing"
+            ref={dragHandleRef}
             onMouseDown={handleMouseDown}
           >
             <div className="flex items-center justify-between">

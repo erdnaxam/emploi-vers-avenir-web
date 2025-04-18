@@ -1,65 +1,66 @@
 
 import { Step } from '@/components/steps/StepProgress';
 
-export const getSteps = (currentUserStep: number): Step[] => {
-  const stepsData = [
+export const getSteps = (currentStepId: number): Step[] => {
+  // Create an array of 8 steps with their respective properties
+  const steps: Step[] = [
     {
       id: 1,
-      title: "Créer mon CV",
-      description: "Créez un CV professionnel et adapté à votre recherche",
-      path: "/etape/1"
+      title: "Évaluation & CV",
+      description: "Évaluez vos compétences et créez un CV percutant",
+      path: "/etape/1",
+      status: currentStepId >= 1 ? (currentStepId > 1 ? 'completed' : 'current') : 'locked'
     },
     {
       id: 2,
-      title: "Me préparer à chercher un emploi",
-      description: "Techniques et ressources pour une recherche efficace",
-      path: "/etape/2"
+      title: "Préparation",
+      description: "Préparez votre recherche d'emploi et identifiez vos cibles",
+      path: "/etape/2",
+      status: currentStepId >= 2 ? (currentStepId > 2 ? 'completed' : 'current') : 'locked'
     },
     {
       id: 3,
-      title: "Trouver et postuler à des offres",
-      description: "Répondre aux offres avec des candidatures adaptées",
-      path: "/etape/3"
+      title: "Recherche d'offres",
+      description: "Trouvez des offres qui correspondent à votre profil",
+      path: "/etape/3",
+      status: currentStepId >= 3 ? (currentStepId > 3 ? 'completed' : 'current') : 'locked'
     },
     {
       id: 4,
-      title: "Me préparer à un entretien",
-      description: "Se préparer pour réussir ses entretiens d'embauche",
-      path: "/etape/4"
+      title: "Préparation entretien",
+      description: "Préparez-vous aux questions les plus fréquentes",
+      path: "/etape/4",
+      status: currentStepId >= 4 ? (currentStepId > 4 ? 'completed' : 'current') : 'locked'
     },
     {
       id: 5,
-      title: "Passer un entretien",
-      description: "Techniques pour être à l'aise pendant l'entretien",
-      path: "/etape/5"
+      title: "Entretien",
+      description: "Faites bonne impression lors de vos entretiens",
+      path: "/etape/5",
+      status: currentStepId >= 5 ? (currentStepId > 5 ? 'completed' : 'current') : 'locked'
     },
     {
       id: 6,
-      title: "Recevoir une réponse",
-      description: "Gérer les réponses, positives comme négatives",
-      path: "/etape/6"
+      title: "Retour candidature",
+      description: "Gérez les réponses et relances post-entretien",
+      path: "/etape/6",
+      status: currentStepId >= 6 ? (currentStepId > 6 ? 'completed' : 'current') : 'locked'
     },
     {
       id: 7,
-      title: "Signer mon contrat",
-      description: "Comprendre et négocier votre contrat de travail",
-      path: "/etape/7"
+      title: "Contrat",
+      description: "Négociez et finalisez votre contrat de travail",
+      path: "/etape/7",
+      status: currentStepId >= 7 ? (currentStepId > 7 ? 'completed' : 'current') : 'locked'
     },
     {
       id: 8,
-      title: "Être accompagné après l'embauche",
-      description: "Réussir votre intégration et votre période d'essai",
-      path: "/etape/8"
-    },
+      title: "Suivi",
+      description: "Intégrez-vous dans votre nouveau poste avec succès",
+      path: "/etape/8",
+      status: currentStepId >= 8 ? 'completed' : (currentStepId === 8 ? 'current' : 'locked')
+    }
   ];
-  
-  // Ajouter le statut à chaque étape
-  return stepsData.map(step => ({
-    ...step,
-    status: step.id < currentUserStep 
-      ? "completed" 
-      : step.id === currentUserStep 
-        ? "current" 
-        : "current" // Toutes les étapes sont débloquées
-  }));
+
+  return steps;
 };

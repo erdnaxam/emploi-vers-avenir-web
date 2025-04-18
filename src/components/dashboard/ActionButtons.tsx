@@ -1,48 +1,65 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FileText, Briefcase, Users, LifeBuoy } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { FileText, Briefcase, ChevronRight } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const ActionButtons: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  const handleStartJourney = () => {
+    if (user) {
+      // Navigate to the current active step or the first step if none is active
+      const nextStepPath = `/etape/${user.currentStep || 1}`;
+      navigate(nextStepPath);
+      
+      toast({
+        title: "Parcours vers l'emploi",
+        description: "Bienvenue dans votre parcours personnalisé vers l'emploi !"
+      });
+    } else {
+      navigate('/login');
+      
+      toast({
+        title: "Connexion requise",
+        description: "Veuillez vous connecter pour accéder à votre parcours."
+      });
+    }
+  };
   
   return (
-    <div className="flex flex-col md:flex-row justify-center gap-4 mt-8 max-w-xl mx-auto">
+    <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
       <Button 
-        variant="default" 
-        className="text-lg py-6 h-auto w-full flex items-center justify-center gap-2"
-        onClick={() => navigate('/documents')}
+        onClick={handleStartJourney}
+        size="lg" 
+        className="flex items-center gap-2"
+      >
+        <ChevronRight className="h-5 w-5" />
+        <span>Mon parcours</span>
+      </Button>
+      
+      <Button 
+        onClick={() => navigate('/cv-generator')}
+        variant="outline" 
+        size="lg" 
+        className="flex items-center gap-2"
       >
         <FileText className="h-5 w-5" />
-        Mes documents
+        <span>Créer mon CV</span>
       </Button>
       
       <Button 
-        variant="secondary" 
-        className="text-lg py-6 h-auto w-full flex items-center justify-center gap-2"
         onClick={() => navigate('/candidatures')}
+        variant="outline" 
+        size="lg" 
+        className="flex items-center gap-2"
       >
         <Briefcase className="h-5 w-5" />
-        Mes candidatures
-      </Button>
-      
-      <Button 
-        variant="outline" 
-        className="text-lg py-6 h-auto w-full flex items-center justify-center gap-2"
-        onClick={() => navigate('/partenaires')}
-      >
-        <Users className="h-5 w-5" />
-        Partenaires
-      </Button>
-      
-      <Button 
-        variant="secondary" 
-        className="text-lg py-6 h-auto w-full flex items-center justify-center gap-2 bg-success text-white hover:bg-success/80"
-        onClick={() => navigate('/aide')}
-      >
-        <LifeBuoy className="h-5 w-5" />
-        J'ai besoin d'aide
+        <span>Mes candidatures</span>
       </Button>
     </div>
   );

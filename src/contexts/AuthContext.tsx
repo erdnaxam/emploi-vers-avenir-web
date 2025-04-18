@@ -2,128 +2,122 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-// Types pour notre contexte d'authentification
-type User = {
+interface User {
   id: string;
   name: string;
   email: string;
   currentStep: number;
-  lastVisitedPage: string;
-  lastLoginDate: string;
-};
+  lastVisited: string;
+}
 
-type AuthContextType = {
-  user: User | null;
+interface AuthContextType {
   isAuthenticated: boolean;
+  user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  updateUserProgress: (step: number, path: string) => void;
+  updateUserProgress: (currentStep: number, lastVisited?: string) => void;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
-// Création du contexte
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Provider du contexte
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
+  
+  // This ensures navigate is only used within component functions, not directly in the context setup
+  const navigate = useNavigate();
 
-  // Vérifier si l'utilisateur est déjà connecté au chargement
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      setIsAuthenticated(true);
-      
-      // Si on est sur la page de login et que l'utilisateur est déjà connecté, on le redirige
-      if (location.pathname === '/login') {
-        navigate(parsedUser.lastVisitedPage || '/dashboard');
+    // Load user from localStorage on initial mount
+    const loadUser = () => {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+        setIsAuthenticated(true);
       }
-    }
-  }, [navigate, location.pathname]);
+      setIsLoading(false);
+    };
 
-  // Fonction de connexion
+    loadUser();
+  }, []);
+
   const login = async (email: string, password: string) => {
+    // Simulated login - in a real app, this would call an API
     try {
-      // Simulation d'une authentification
-      // En production, cela devrait appeler une API
-      const mockUser: User = {
-        id: 'user-' + Date.now(),
-        name: email.split('@')[0],
+      setIsLoading(true);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const newUser: User = {
+        id: '1',
+        name: email.split('@')[0], // Use part of email as name for demo
         email,
         currentStep: 1,
-        lastVisitedPage: '/dashboard',
-        lastLoginDate: new Date().toISOString()
+        lastVisited: '/dashboard'
       };
       
-      setUser(mockUser);
+      // Save user to localStorage
+      localStorage.setItem('user', JSON.stringify(newUser));
+      setUser(newUser);
       setIsAuthenticated(true);
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      // Use navigate within a function that gets called after authentication
+      navigate('/dashboard');
     } catch (error) {
-      console.error('Erreur de connexion:', error);
+      console.error('Login error:', error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Fonction d'inscription
-  const register = async (name: string, email: string, password: string) => {
-    try {
-      // Simulation d'une inscription
-      const mockUser: User = {
-        id: 'user-' + Date.now(),
-        name,
-        email,
-        currentStep: 1,
-        lastVisitedPage: '/dashboard',
-        lastLoginDate: new Date().toISOString()
-      };
-      
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-    } catch (error) {
-      console.error('Erreur d\'inscription:', error);
-      throw error;
-    }
-  };
-
-  // Fonction de déconnexion
   const logout = () => {
+    localStorage.removeItem('user');
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('user');
+    
+    // Use navigate within this function
     navigate('/');
   };
 
-  // Mettre à jour la progression de l'utilisateur
-  const updateUserProgress = (step: number, path: string) => {
+  const updateUserProgress = (currentStep: number, lastVisited?: string) => {
     if (user) {
       const updatedUser = {
         ...user,
-        currentStep: Math.max(user.currentStep, step),
-        lastVisitedPage: path
+        currentStep: Math.max(user.currentStep, currentStep),
+        lastVisited: lastVisited || user.lastVisited
       };
-      setUser(updatedUser);
+      
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
     }
   };
 
+  if (isLoading) {
+    // Don't render children until we've checked for an existing user
+    return <div className="flex justify-center items-center h-screen">Chargement...</div>;
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, register, logout, updateUserProgress }}>
+    <AuthContext.Provider value={{
+      isAuthenticated,
+      user,
+      login,
+      logout,
+      updateUserProgress
+    }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-// Hook personnalisé pour utiliser le contexte d'authentification
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth doit être utilisé avec AuthProvider');
-  }
-  return context;
 };
