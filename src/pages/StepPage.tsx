@@ -11,7 +11,7 @@ import { Mic, Globe, Calendar, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { stepsData } from '@/data/stepsData';
 import ProgressBar from '@/components/dashboard/ProgressBar';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 // Simplification des ressources
 const filterResources = (resources: any[]) => {
@@ -141,7 +141,7 @@ const StepPage = () => {
         toast({
           title: `🎉 Félicitations ${user.name || ''} !`,
           description: `Vous avez terminé tout le parcours vers l'emploi. Bravo pour votre engagement !`,
-          variant: "success",
+          variant: "default",
         });
       } else {
         toast({
@@ -208,11 +208,10 @@ const StepPage = () => {
         />
         
         <StepContent 
-          {...currentStep} 
+          {...currentStep}
           onComplete={handleCompleteStep} 
           resources={filterResources(currentStep.resources)} 
           onHelp={() => setShowHelpOptions(true)}
-          canProceed={canProceed}
         />
       </div>
     </PageLayout>

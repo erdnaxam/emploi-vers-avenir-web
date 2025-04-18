@@ -21,7 +21,7 @@ import CVGeneratorPage from "./pages/CVGeneratorPage";
 import MotivationLetterPage from "./pages/MotivationLetterPage";
 import Chatbot from "./components/chat/Chatbot";
 import VoiceDictation from "./components/VoiceDictation";
-import { Helmet } from "react-helmet";
+import { HelmetProvider, Helmet } from "react-helmet-async";
 
 const queryClient = new QueryClient();
 
@@ -132,11 +132,13 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
+      <HelmetProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </BrowserRouter>
+      </HelmetProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
