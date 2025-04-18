@@ -104,8 +104,7 @@ const StepPage = () => {
     if (user && numericStepId > 1 && user.currentStep < numericStepId - 1) {
       toast({
         title: "Étape non disponible",
-        description: "Vous devez d'abord terminer les étapes précédentes.",
-        variant: "destructive",
+        description: "Vous devez d'abord terminer les étapes précédentes."
       });
       navigate(`/etape/${user.currentStep}`);
     }
@@ -140,14 +139,12 @@ const StepPage = () => {
       if (currentStep.id === 8) {
         toast({
           title: `🎉 Félicitations ${user.name || ''} !`,
-          description: `Vous avez terminé tout le parcours vers l'emploi. Bravo pour votre engagement !`,
-          variant: "default",
+          description: `Vous avez terminé tout le parcours vers l'emploi. Bravo pour votre engagement !`
         });
       } else {
         toast({
           title: `🎉 Bravo ${user.name || ''} !`,
-          description: `Vous avez terminé l'étape "${currentStep.title}" avec succès.`,
-          variant: "default",
+          description: `Vous avez terminé l'étape "${currentStep.title}" avec succès.`
         });
       }
       
@@ -164,7 +161,7 @@ const StepPage = () => {
       appointment: () => navigate('/partenaires'),
       call: () => toast({
         title: "Appel au conseiller",
-        description: "Votre demande d'appel a été enregistrée. Un conseiller vous contactera prochainement.",
+        description: "Votre demande d'appel a été enregistrée. Un conseiller vous contactera prochainement."
       }),
       chat: () => navigate('/aide'),
       video: () => navigate('/aide')
