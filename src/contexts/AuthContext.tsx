@@ -23,7 +23,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth doit être utilisé avec AuthProvider');
   }
   return context;
 };
@@ -32,10 +32,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const location = useLocation();
-  
-  // This ensures navigate is only used within component functions, not directly in the context setup
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Load user from localStorage on initial mount
@@ -72,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(newUser);
       setIsAuthenticated(true);
       
-      // Use navigate within a function that gets called after authentication
+      // Navigate to dashboard after login
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
@@ -87,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setIsAuthenticated(false);
     
-    // Use navigate within this function
+    // Navigate to home after logout
     navigate('/');
   };
 

@@ -4,8 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { useAuth } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -25,7 +24,7 @@ import { HelmetProvider, Helmet } from "react-helmet-async";
 
 const queryClient = new QueryClient();
 
-// Protected route component
+// Protected route component that must be used within AuthProvider
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
   
@@ -36,7 +35,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Step route component
+// Step route component that must be used within AuthProvider
 const StepRoute = ({ children, stepId }: { children: React.ReactNode, stepId: number }) => {
   const { user } = useAuth();
   
@@ -52,7 +51,7 @@ const StepRoute = ({ children, stepId }: { children: React.ReactNode, stepId: nu
   return <>{children}</>;
 };
 
-// App routes component
+// This is the component that contains all routes, it MUST be wrapped with AuthProvider
 const AppRoutes = () => {
   return (
     <>
