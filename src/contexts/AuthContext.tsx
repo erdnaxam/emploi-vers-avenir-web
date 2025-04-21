@@ -1,121 +1,124 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+const AuthForm: React.FC = () => {
+  const { login } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: 'demo@example.com',
+    password: 'password123'
+  });
+  const [errors, setErrors] = useState<{email?: string, password?: string}>({});
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  currentStep: number;
-  lastVisited: string;
-}
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear errors when user types
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+  };
 
-interface AuthContextType {
-  isAuthenticated: boolean;
-  user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  updateUserProgress: (currentStep: number, lastVisited?: string) => void;
-}
+  const validateForm = () => {
+    const newErrors: {email?: string, password?: string} = {};
+    
+    if (!formData.email) {
+      newErrors.email = 'Email requis';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Email invalide';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Mot de passe requis';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-const AuthContext = createContext<AuthContextType | null>(null);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth doit être utilisé avec AuthProvider');
-  }
-  return context;
-};
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    // Load user from localStorage on initial mount
-    const loadUser = () => {
-      const savedUser = localStorage.getItem('user');
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-        setIsAuthenticated(true);
-      }
-      setIsLoading(false);
-    };
-
-    loadUser();
-  }, []);
-
-  const login = async (email: string, password: string) => {
-    // Simulated login - in a real app, this would call an API
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const newUser: User = {
-        id: '1',
-        name: email.split('@')[0], // Use part of email as name for demo
-        email,
-        currentStep: 1,
-        lastVisited: '/dashboard'
-      };
-      
-      // Save user to localStorage
-      localStorage.setItem('user', JSON.stringify(newUser));
-      setUser(newUser);
-      setIsAuthenticated(true);
-      
-      // Navigate to dashboard after login
-      navigate('/dashboard');
+      await login(formData.email, formData.password);
+      toast({
+        title: 'Connexion réussie',
+        description: 'Bienvenue sur votre espace personnel',
+      });
     } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      toast({
+        title: 'Erreur de connexion',
+        description: "Impossible de se connecter. Vérifiez vos identifiants.",
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
   };
-
-  const logout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    setIsAuthenticated(false);
-    
-    // Navigate to home after logout
-    navigate('/');
-  };
-
-  const updateUserProgress = (currentStep: number, lastVisited?: string) => {
-    if (user) {
-      const updatedUser = {
-        ...user,
-        currentStep: Math.max(user.currentStep, currentStep),
-        lastVisited: lastVisited || user.lastVisited
-      };
-      
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-    }
-  };
-
-  if (isLoading) {
-    // Don't render children until we've checked for an existing user
-    return <div className="flex justify-center items-center h-screen">Chargement...</div>;
-  }
-
+  
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      user,
-      login,
-      logout,
-      updateUserProgress
-    }}>
-      {children}
-    </AuthContext.Provider>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Connexion</CardTitle>
+        <CardDescription>
+          Accédez à votre espace personnel pour suivre votre parcours vers l'emploi.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input 
+              id="email"
+              name="email"
+              type="email"
+              placeholder="votre.email@exemple.com"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="password">Mot de passe</Label>
+            <Input 
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Votre mot de passe"
+              value={formData.password}
+              onChange={handleChange}
+            />
+            {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+          </div>
+          
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Connexion en cours...' : 'Se connecter'}
+          </Button>
+        </form>
+      </CardContent>
+      <CardFooter className="flex flex-col space-y-4">
+        <div className="text-sm text-muted-foreground">
+          Demo: utilisez email: exemple@gmail.com et password: Password123
+        </div>
+        <div className="text-sm text-center w-full">
+          <a href="#" className="text-primary hover:underline">Mot de passe oublié ?</a>
+        </div>
+      </CardFooter>
+    </Card>
   );
 };
+
+export default AuthForm;
