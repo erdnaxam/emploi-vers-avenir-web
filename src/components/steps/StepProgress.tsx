@@ -30,7 +30,7 @@ const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStepId }) => 
       toast({
         title: "Étape non disponible",
         description: "Vous devez d'abord terminer les étapes précédentes.",
-        variant: "warning",
+        variant: "destructive", // Changed from "warning" to "destructive"
       });
       return;
     }
