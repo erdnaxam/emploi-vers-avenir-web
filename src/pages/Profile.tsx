@@ -45,7 +45,7 @@ const Profile = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue="jean.dupont@example.com" />
+                  <Input id="email" type="email" />
                 </div>
                 
                 <div className="space-y-2">
